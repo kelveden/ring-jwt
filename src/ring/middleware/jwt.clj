@@ -1,6 +1,6 @@
 (ns ring.middleware.jwt
   (:require [ring.middleware.token :as token])
-  (:import (com.auth0.jwt.exceptions SignatureVerificationException JWTDecodeException AlgorithmMismatchException)))
+  (:import (com.auth0.jwt.exceptions SignatureVerificationException AlgorithmMismatchException)))
 
 (defn- find-token
   [{:keys [headers]}]

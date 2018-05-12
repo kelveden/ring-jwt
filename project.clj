@@ -1,4 +1,4 @@
-(defproject ovotech/ring-jwt "0.1.0-SNAPSHOT"
+(defproject ovotech/ring-jwt "0.1.0"
   :description "JWT middleware for Ring"
   :url "http://github.com/ovotech/ring-jwt"
   :license {:name "Eclipse Public License"
