@@ -33,16 +33,17 @@
 
 (defmulti decode
           "Decodes and verifies the signature of the given JWT token. The decoded claims from the token are returned."
-          (fn [token & _] (-> token
-                              (clojure.string/split #"\.")
-                              first
-                              base64->map
-                              :alg)))
+          (fn [_ {:keys [alg]}] alg))
 (defmethod decode nil
   [& _]
   (throw (JWTDecodeException. "Could not parse algorithm.")))
 
-(defmethod decode "RS256"
-  [token public-key]
-  (let [algorithm (Algorithm/RSA256 public-key)]
-    (decode-token* algorithm token)))
+(defmethod decode :RS256
+  [token {:keys [public-key]}]
+  (-> (Algorithm/RSA256 public-key)
+      (decode-token* token)))
+
+(defmethod decode :HS256
+  [token {:keys [secret]}]
+  (-> (Algorithm/HMAC256 secret)
+      (decode-token* token)))
