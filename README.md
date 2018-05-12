@@ -28,8 +28,8 @@ supported:
 
 | Algorithm | Description                    | Options                           |
 | --------- | ------------------------------ | --------------------------------- |
-| `:RS256`  | RSASSA-PKCS-v1_5 using SHA-256 | `{:public-key "your-public-key"}` |
-| `:HS256`  | HMAC using SHA-256             | `{:secret "your-secret"}`         |
+| `:RS256`  | RSASSA-PKCS-v1_5 using SHA-256 | `{:alg :RS256 :public-key "your-public-key"}` |
+| `:HS256`  | HMAC using SHA-256             | `{:alg :HS256 :secret "your-secret"}`         |
 
 ### Finding the token on the request
 Currently the library looks in order from the following locations:
