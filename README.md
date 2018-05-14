@@ -38,7 +38,7 @@ Currently the library looks in order from the following locations:
 
 1. `Authorization` header bearer token (i.e. an `Authorization` HTTP header of the form "Bearer TOKEN")
 
-## Useful links:
+## Useful links
 
 * [JSON Web Tokens - JWT Specification](https://tools.ietf.org/html/rfc7519)
 * [JSON Web Signatures - JWS Specification](https://tools.ietf.org/html/rfc7515)
