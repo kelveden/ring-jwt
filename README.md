@@ -23,8 +23,8 @@ Built on top of the excellent [auth0](https://github.com/auth0/java-jwt) JWT lib
 Depending upon the cryptographic algorithm that is selected for the middleware, a different
 map of options will be required.
 
-Currently the following [JWS](https://tools.ietf.org/html/rfc7515) cryptographic algorithms are
-supported:
+Currently the following [JWA](https://tools.ietf.org/html/rfc7518#page-6) algorithms are
+supported for the purposes of JWS:
 
 | Algorithm                      | Options                          |                   |
 | ------------------------------ | -------------------------------- | ----------------- |
@@ -37,6 +37,13 @@ supported:
 Currently the library looks in order from the following locations:
 
 1. `Authorization` header bearer token (i.e. an `Authorization` HTTP header of the form "Bearer TOKEN")
+
+## Useful links:
+
+* [JWT Specification](https://tools.ietf.org/html/rfc7519)
+* [JWS Specification](https://tools.ietf.org/html/rfc7515)
+* [JWA Specification](https://tools.ietf.org/html/rfc7518)
+* [jwt.io](https://jwt.io/)
 
 ## License
 Copyright © 2018 Ovo Energy Ltd.
