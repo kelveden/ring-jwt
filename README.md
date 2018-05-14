@@ -40,9 +40,9 @@ Currently the library looks in order from the following locations:
 
 ## Useful links:
 
-* [JWT Specification](https://tools.ietf.org/html/rfc7519)
-* [JWS Specification](https://tools.ietf.org/html/rfc7515)
-* [JWA Specification](https://tools.ietf.org/html/rfc7518)
+* [JSON Web Tokens - JWT Specification](https://tools.ietf.org/html/rfc7519)
+* [JSON Web Signatures - JWS Specification](https://tools.ietf.org/html/rfc7515)
+* [JSON Web Algorithms - JWA Specification](https://tools.ietf.org/html/rfc7518)
 * [jwt.io](https://jwt.io/)
 
 ## License
