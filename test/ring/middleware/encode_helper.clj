@@ -1,5 +1,6 @@
 (ns ring.middleware.encode-helper
-  (:require [clojure.test :refer :all])
+  (:require [clojure.test :refer :all]
+            [cheshire.core :as json])
   (:import (com.auth0.jwt.algorithms Algorithm)
            (com.auth0.jwt JWT)
            (java.security KeyPairGenerator)
@@ -11,27 +12,44 @@
   []
   (let [generator (doto (KeyPairGenerator/getInstance "RSA")
                     (.initialize 1024))
-        key-pair (.generateKeyPair generator)]
+        key-pair  (.generateKeyPair generator)]
     [(.getPrivate key-pair) (.getPublic key-pair)]))
 
 (defn generate-hmac-secret
   []
   (str (UUID/randomUUID)))
 
+(defn str->bytes
+  [x]
+  (.getBytes x Charsets/UTF_8))
+
 (defn str->base64
   [x]
   (-> x
-      (.getBytes Charsets/UTF_8)
-      (Base64/encodeBase64)
-      (String. Charsets/UTF_8)))
+      (str->bytes)
+      (Base64/encodeBase64URLSafeString)))
+
+#_(defn- encode-token*
+    [algorithm claims]
+    (let [claims-str (->> claims
+                          (clojure.walk/stringify-keys)
+                          (json/generate-string))]
+      (->> (.getBytes claims-str Charsets/UTF_8)
+           (.sign algorithm))))
 
 (defn- encode-token*
-  [algorithm claims]
-  (-> (reduce (fn [acc [k v]]
-                (.withClaim acc k v))
-              (JWT/create)
-              (clojure.walk/stringify-keys claims))
-      (.sign algorithm)))
+  [algorithm alg claims]
+  (let [header    (-> {:alg alg :typ "JWT"}
+                      (json/generate-string)
+                      (str->base64))
+        payload   (-> claims
+                      (json/generate-string)
+                      (str->base64))
+        signature (->> (format "%s.%s" header payload)
+                       (str->bytes)
+                       (.sign algorithm)
+                       (Base64/encodeBase64URLSafeString))]
+    (format "%s.%s.%s" header payload signature)))
 
 (defmulti encode-token
           "Encodes the given claims as a JWT using the given arguments as a basis."
@@ -40,9 +58,9 @@
 (defmethod encode-token :RS256
   [claims {:keys [private-key]}]
   (-> (Algorithm/RSA256 private-key)
-      (encode-token* claims)))
+      (encode-token* :RS256 claims)))
 
 (defmethod encode-token :HS256
   [claims {:keys [secret]}]
   (-> (Algorithm/HMAC256 secret)
-      (encode-token* claims)))
+      (encode-token* :HS256 claims)))

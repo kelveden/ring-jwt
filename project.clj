@@ -6,4 +6,5 @@
   :dependencies [[cheshire "5.8.0"]
                  [commons-codec "1.11"]
                  [org.clojure/clojure "1.9.0"]
-                 [com.auth0/java-jwt "3.3.0"]])
+                 [com.auth0/java-jwt "3.3.0"]
+                 [com.auth0/jwks-rsa "0.4.0"]])

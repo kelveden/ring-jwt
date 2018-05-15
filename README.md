@@ -26,12 +26,10 @@ map of options will be required.
 Currently the following [JWA](https://tools.ietf.org/html/rfc7518#page-6) algorithms are
 supported for the purposes of JWS:
 
-| Algorithm                      | Options                          |                   |
-| ------------------------------ | -------------------------------- | ----------------- |
-| RSASSA-PKCS-v1_5 using SHA-256 | `:alg`                           | `:RS256`          |
-|                                | `:public-key`                    | `your-public-key` |
-| HMAC using SHA-256             | `:alg`                           | `:HS256`          |
-|                                | `:secret`                        | `your-secret`     |
+| Algorithm                      | Options                                       |
+| ------------------------------ | --------------------------------------------- |
+| RSASSA-PKCS-v1_5 using SHA-256 | `{:alg :RS256 :public-key "your-public-key"}` |
+| HMAC using SHA-256             | `{:alg :HS256 :public-key "your-secret"}`     |
 
 ### Finding the token on the request
 Currently the library looks in order from the following locations:
@@ -43,6 +41,7 @@ Currently the library looks in order from the following locations:
 * [JSON Web Tokens - JWT Specification](https://tools.ietf.org/html/rfc7519)
 * [JSON Web Signatures - JWS Specification](https://tools.ietf.org/html/rfc7515)
 * [JSON Web Algorithms - JWA Specification](https://tools.ietf.org/html/rfc7518)
+* [JSON Web Keys - JWK Specification](https://tools.ietf.org/html/rfc7517)
 * [jwt.io](https://jwt.io/)
 
 ## License
