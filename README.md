@@ -8,6 +8,7 @@ Once wired into to your ring server, the middleware will:
 
 * Search for a JWT token on each incoming request (see below for information on where it looks).
 * Will add the claims it finds in the token as a clojure map against the `:claims` key on the incoming request.
+* Add an empty `:claims` map to the request if no token is found.
 * Respond with a `401` if the JWS signature in the token cannot be verified.
 * Respond with a `401` if the token has expired (i.e. the [exp]() claim indicates a time
 in the past)
@@ -33,7 +34,8 @@ Note that there is the option to specify a leeway for the `exp`/`nbf` checks - s
 ```
 
 Depending upon the cryptographic algorithm that is selected for the middleware, a different
-map of options will be required.
+map of options will be required. Note that, at the point your ring middleware is wired up, ring-jwt will
+throw an error if it detects that the given options are invalid. 
 
 Currently the following [JWA](https://tools.ietf.org/html/rfc7518#page-6) algorithms are
 supported for the purposes of JWS:
