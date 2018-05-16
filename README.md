@@ -4,6 +4,18 @@ a [JWS](https://tools.ietf.org/html/rfc7515)-signed [JWT](https://tools.ietf.org
 
 Built on top of the excellent [auth0](https://github.com/auth0/java-jwt) JWT library.
 
+Once wired into to your ring server, the middleware will:
+
+* Search for a JWT token on each incoming request (see below for information on where it looks).
+* Will add the claims it finds in the token as a clojure map against the `:claims` key on the incoming request.
+* Respond with a `401` if the JWS signature in the token cannot be verified.
+* Respond with a `401` if the token has expired (i.e. the [exp]() claim indicates a time
+in the past)
+* Respond with a `401` if the token will only be active in the future (i.e. the [nbf]() claim indicates
+a time in the future)
+
+Note that there is the option to specify a leeway for the `exp`/`nbf` checks - see usage below.
+
 ## Installation
 ```
 [ovotech/ring-jwt "0.1.0"]
@@ -30,6 +42,11 @@ supported for the purposes of JWS:
 | ------------------------------ | --------------------------------------------- |
 | RSASSA-PKCS-v1_5 using SHA-256 | `{:alg :RS256 :public-key "your-public-key"}` |
 | HMAC using SHA-256             | `{:alg :HS256 :public-key "your-secret"}`     |
+
+Additionally, the following optional options are supported:
+
+* `leeway-seconds`: The number of seconds leeway to give when verifying the expiry/active from claims
+of the token (i.e. the `exp` and `nbf` claims).
 
 ### Finding the token on the request
 Currently the library looks in order from the following locations:

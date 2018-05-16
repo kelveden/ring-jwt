@@ -29,14 +29,6 @@
       (str->bytes)
       (Base64/encodeBase64URLSafeString)))
 
-#_(defn- encode-token*
-    [algorithm claims]
-    (let [claims-str (->> claims
-                          (clojure.walk/stringify-keys)
-                          (json/generate-string))]
-      (->> (.getBytes claims-str Charsets/UTF_8)
-           (.sign algorithm))))
-
 (defn- encode-token*
   [algorithm alg claims]
   (let [header    (-> {:alg alg :typ "JWT"}

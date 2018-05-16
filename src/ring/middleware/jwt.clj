@@ -1,12 +1,15 @@
 (ns ring.middleware.jwt
   (:require [ring.middleware.token :as token])
-  (:import (com.auth0.jwt.exceptions SignatureVerificationException AlgorithmMismatchException)))
+  (:import (com.auth0.jwt.exceptions SignatureVerificationException AlgorithmMismatchException JWTVerificationException TokenExpiredException)))
 
 (defn- find-token
   [{:keys [headers]}]
-  (some-> (get headers "Authorization")
-          (clojure.string/split #" ")
-          (last)))
+  (some->> headers
+           (filter #(.equalsIgnoreCase "authorization" (key %)))
+           (first)
+           (val)
+           (re-find #"(?i)^Bearer (.+)$")
+           (last)))
 
 (defn wrap-jwt
   "Middleware that decodes a JWT token, verifies against the signature and then
@@ -27,7 +30,17 @@
              (handler)))
 
       (catch SignatureVerificationException _
-        {:status 401})
+        {:status 401
+         :body "Signature could not be verified."})
 
       (catch AlgorithmMismatchException _
-        {:status 401}))))
+        {:status 401
+         :body "Signature could not be verified."})
+
+      (catch TokenExpiredException _
+        {:status 401
+         :body "Token has expired."})
+
+      (catch JWTVerificationException _
+        {:status 401
+         :body "One or more claims were invalid."}))))
