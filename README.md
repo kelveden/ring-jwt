@@ -29,8 +29,8 @@ Note that there is the option to specify a leeway for the `exp`/`nbf` checks - s
 (defn handler [request]
   (response {:foo "bar"}))
 
-(jwt/wrap-jwt handler {:alg        :RS256
-                       :public-key "yourpublickey"})
+(jwt/wrap-jwt handler {:alg        :HS256
+                       :public-key "yoursecret"})
 ```
 
 Depending upon the cryptographic algorithm that is selected for the middleware, a different
@@ -42,8 +42,10 @@ supported for the purposes of JWS:
 
 | Algorithm                      | Options                                       |
 | ------------------------------ | --------------------------------------------- |
-| RSASSA-PKCS-v1_5 using SHA-256 | `{:alg :RS256 :public-key "your-public-key"}` |
+| RSASSA-PKCS-v1_5 using SHA-256 | `{:alg :RS256 :public-key public-key}` <sup>[1]</sup> |
 | HMAC using SHA-256             | `{:alg :HS256 :public-key "your-secret"}`     |
+
+[1] `public-key` is of type `java.security.PublicKey`.
 
 Additionally, the following optional options are supported:
 

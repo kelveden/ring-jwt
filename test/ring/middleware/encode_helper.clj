@@ -2,7 +2,6 @@
   (:require [clojure.test :refer :all]
             [cheshire.core :as json])
   (:import (com.auth0.jwt.algorithms Algorithm)
-           (com.auth0.jwt JWT)
            (java.security KeyPairGenerator)
            (org.apache.commons.codec Charsets)
            (org.apache.commons.codec.binary Base64)
