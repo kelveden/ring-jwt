@@ -1,4 +1,6 @@
 (ns ring.middleware.test.encode-utils
+  "Test utility functions for use in writing tests against ring servers that have the
+  ring-jwt middleware. Not designed for use in production code."
   (:require [clojure.test :refer :all]
             [cheshire.core :as json])
   (:import (com.auth0.jwt.algorithms Algorithm)
@@ -10,21 +12,7 @@
 (def ^:private algorithm->key-type
   {:RS256 "RSA"})
 
-(defn generate-key-pair
-  [alg & [key-size]]
-  (let [generator (doto (->> alg
-                             (get algorithm->key-type)
-                             (KeyPairGenerator/getInstance))
-                    (.initialize (or key-size 1024)))
-        key-pair  (.generateKeyPair generator)]
-    {:private-key (.getPrivate key-pair)
-     :public-key (.getPublic key-pair)}))
-
-(defn generate-hmac-secret
-  []
-  (str (UUID/randomUUID)))
-
-(defn str->bytes
+(defn- str->bytes
   [x]
   (.getBytes x Charsets/UTF_8))
 
@@ -61,3 +49,26 @@
   [claims {:keys [secret]}]
   (-> (Algorithm/HMAC256 secret)
       (encode-token* :HS256 claims)))
+
+(defn generate-key-pair
+  "Generates a private/public key pair based on the specified cryptographic algorithm."
+  [alg & [key-size]]
+  (let [generator (doto (->> alg
+                             (get algorithm->key-type)
+                             (KeyPairGenerator/getInstance))
+                    (.initialize (or key-size 1024)))
+        key-pair  (.generateKeyPair generator)]
+    {:private-key (.getPrivate key-pair)
+     :public-key (.getPublic key-pair)}))
+
+(defn generate-hmac-secret
+  "Generates a random string to use as a HMAC secret."
+  []
+  (str (UUID/randomUUID)))
+
+(defn add-jwt-token
+  "Sets the Authorization header on the specified request as a JWT-encoded token based
+  on the given claims and algorithm."
+  [req claims alg-opts]
+  (assoc-in req [:headers "Authorization"]
+            (str "Bearer " (encode-token claims alg-opts))))
