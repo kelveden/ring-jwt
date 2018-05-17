@@ -3,8 +3,10 @@
             [clojure.string :refer [split join]]
             [clojure.test :refer :all]
             [ring.middleware.test.encode-utils :as eu]
-            [ring.middleware.token :as token])
-  (:import (com.auth0.jwt.exceptions SignatureVerificationException)))
+            [ring.middleware.token :as token]
+            [ring.middleware.jwk :as jwk])
+  (:import (com.auth0.jwt.exceptions SignatureVerificationException)
+           (java.util UUID)))
 
 (def ^:private dummy-payload {:some "data"})
 (def ^:private alg :RS256)
@@ -17,6 +19,22 @@
     (is (= (token/decode token {:alg        alg
                                 :public-key public-key})
            payload))))
+
+(deftest can-decode-token-based-on-jwk-provider-url
+  (let [payload      {:field1 "whatever" :field2 "something else"}
+        {:keys [private-key public-key]} (eu/generate-key-pair alg)
+        token        (eu/encode-token payload {:alg         alg
+                                               :private-key private-key})
+        jwk-endpoint "https://my/jwk"
+        key-id       (str (UUID/randomUUID))]
+
+    (with-redefs [jwk/get-jwk (fn [u k]
+                                (when (and (= u jwk-endpoint) (= k key-id))
+                                  public-key))]
+      (is (= (token/decode token {:alg          alg
+                                  :jwk-endpoint jwk-endpoint
+                                  :key-id       key-id})
+             payload)))))
 
 (deftest decoding-token-signed-with-non-matching-key-causes-error
   (let [{:keys [private-key]} (eu/generate-key-pair alg)

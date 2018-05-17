@@ -1,8 +1,7 @@
 (ns ring.middleware.jwt
   (:require [clojure.spec.alpha :as s]
             [ring.middleware.token :as token])
-  (:import (com.auth0.jwt.exceptions SignatureVerificationException AlgorithmMismatchException JWTVerificationException TokenExpiredException)
-           (java.security PublicKey)))
+  (:import (com.auth0.jwt.exceptions SignatureVerificationException AlgorithmMismatchException JWTVerificationException TokenExpiredException)))
 
 (defn- find-token
   [{:keys [headers]}]
@@ -13,22 +12,10 @@
            (re-find #"(?i)^Bearer (.+)$")
            (last)))
 
-
-(s/def ::alg #{:RS256 :HS256})
-
-(s/def ::secret (s/and string? (complement clojure.string/blank?)))
-(s/def ::secret-opts (s/and (s/keys :req-un [::alg ::secret])
-                            #(contains? #{:HS256} (:alg %))))
-
-(s/def ::public-key #(instance? PublicKey %))
-(s/def ::public-key-opts (s/and (s/keys :req-un [::alg ::public-key])
-                                #(contains? #{:RS256} (:alg %))))
-
-(s/def ::leeway nat-int?)
-(s/def ::alg-opts (s/and (s/keys :req-in [::alg]
-                                 :opt-un [::leeway])
-                         (s/or :secret-opts ::secret-opts
-                               :public-key-opts ::public-key-opts)))
+(s/def ::alg-opts (s/and (s/keys :req-in [::token/alg]
+                                 :opt-un [::token/leeway])
+                         (s/or :secret-opts ::token/secret-opts
+                               :public-key-opts ::token/public-key-opts)))
 
 (defn wrap-jwt
   "Middleware that decodes a JWT token, verifies against the signature and then

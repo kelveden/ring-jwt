@@ -43,6 +43,7 @@ supported for the purposes of JWS:
 | Algorithm                      | Options                                       |
 | ------------------------------ | --------------------------------------------- |
 | RSASSA-PKCS-v1_5 using SHA-256 | `{:alg :RS256 :public-key public-key}` <sup>[1]</sup> |
+|                                | `{:alg :RS256 :jwk-endpoint url-string :key-id key-string}` | 
 | HMAC using SHA-256             | `{:alg :HS256 :public-key "your-secret"}`     |
 
 [1] `public-key` is of type `java.security.PublicKey`.
