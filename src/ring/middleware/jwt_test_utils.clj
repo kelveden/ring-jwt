@@ -1,4 +1,4 @@
-(ns ring.middleware.test.encode-utils
+(ns ring.middleware.jwt-test-utils
   "Test utility functions for use in writing tests against ring servers that have the
   ring-jwt middleware. Not designed for use in production code."
   (:require [clojure.test :refer :all]
