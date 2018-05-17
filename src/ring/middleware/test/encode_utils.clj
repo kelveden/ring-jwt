@@ -1,18 +1,24 @@
-(ns ring.middleware.encode-helper
+(ns ring.middleware.test.encode-utils
   (:require [clojure.test :refer :all]
             [cheshire.core :as json])
   (:import (com.auth0.jwt.algorithms Algorithm)
-           (java.security KeyPairGenerator)
            (org.apache.commons.codec Charsets)
            (org.apache.commons.codec.binary Base64)
+           (java.security KeyPairGenerator)
            (java.util UUID)))
 
-(defn generate-rsa-key-pair
-  []
-  (let [generator (doto (KeyPairGenerator/getInstance "RSA")
-                    (.initialize 1024))
+(def ^:private algorithm->key-type
+  {:RS256 "RSA"})
+
+(defn generate-key-pair
+  [alg & [key-size]]
+  (let [generator (doto (->> alg
+                             (get algorithm->key-type)
+                             (KeyPairGenerator/getInstance))
+                    (.initialize (or key-size 1024)))
         key-pair  (.generateKeyPair generator)]
-    [(.getPrivate key-pair) (.getPublic key-pair)]))
+    {:private-key (.getPrivate key-pair)
+     :public-key (.getPublic key-pair)}))
 
 (defn generate-hmac-secret
   []

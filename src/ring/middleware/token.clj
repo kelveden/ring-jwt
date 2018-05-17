@@ -7,18 +7,11 @@
            (org.apache.commons.codec Charsets)
            (org.apache.commons.codec.binary Base64)))
 
-(defn- base64->str
-  [x]
-  {:pre [(string? x)]}
-  (-> x
-      (.getBytes Charsets/UTF_8)
-      (Base64/decodeBase64)
-      (String. Charsets/UTF_8)))
-
 (defn- base64->map
   [base64-str]
   (-> base64-str
-      (base64->str)
+      (Base64/decodeBase64)
+      (String. Charsets/UTF_8)
       (json/parse-string)
       (keywordize-keys)))
 
