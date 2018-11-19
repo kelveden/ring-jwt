@@ -23,11 +23,11 @@
       (Base64/encodeBase64URLSafeString)))
 
 (defn- encode-token*
-  [algorithm alg claims issuer public-key-id]
-  (let [header    (-> {:alg alg :typ "JWT" :kid public-key-id}
+  [algorithm alg claims public-key-id]
+  (let [header    (-> {:alg alg :typ "JWT" :kid public-key-id} ;; TODO check key id. should be able to get from public key?
                       (json/generate-string)
                       (str->base64))
-        payload   (-> (if issuer (merge claims {:iss issuer}) claims)
+        payload   (-> claims
                       (json/generate-string)
                       (str->base64))
         signature (->> (format "%s.%s" header payload)
@@ -41,14 +41,14 @@
           (fn [_ {:keys [alg]}] alg))
 
 (defmethod encode-token :RS256
-  [claims {:keys [private-key issuer public-key-id]}]
+  [claims {:keys [private-key public-key-id]}]
   (-> (Algorithm/RSA256 private-key)
-      (encode-token* :RS256 claims issuer public-key-id)))
+      (encode-token* :RS256 claims public-key-id)))
 
 (defmethod encode-token :HS256
-  [claims {:keys [secret issuer]}]
+  [claims {:keys [secret]}]
   (-> (Algorithm/HMAC256 secret)
-      (encode-token* :HS256 claims issuer nil)))
+      (encode-token* :HS256 claims nil)))
 
 (defn generate-key-pair
   "Generates a private/public key pair based on the specified cryptographic algorithm."
