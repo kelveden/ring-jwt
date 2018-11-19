@@ -29,6 +29,16 @@
         res     (handler req)]
     (is (= (merge claims {:iss issuer}) (:claims res)))))
 
+(deftest claims-from-valid-jwt-token-in-authorization-header-are-added-to-request-without-validating-issuer
+  (let [{:keys [private-key public-key]} (util/generate-key-pair :RS256)
+        claims  {:a 1 :b 2}
+        handler (wrap-jwt (dummy-handler) {:alg        :RS256
+                                           :public-key public-key})
+        req     (build-request claims {:alg         :RS256
+                                       :private-key private-key})
+        res     (handler req)]
+    (is (= claims (:claims res)))))
+
 (deftest jwt-token-signed-with-wrong-algorithm-causes-401
   (let [{:keys [private-key]} (util/generate-key-pair :RS256)
         claims  {:a 1 :b 2}
@@ -159,11 +169,6 @@
                                                      :issuer issuer
                                                      :bollox "whatever"}))))
 
-  (deftest missing-issuer-causes-error
-    (is (thrown-with-msg? ExceptionInfo #"Invalid options."
-                          (wrap-jwt (dummy-handler) {:alg    :HS256
-                                                     :secret "whatever"}))))
-
   (deftest incorrect-option-type-causes-error
     (is (thrown-with-msg? ExceptionInfo #"Invalid options."
                           (wrap-jwt (dummy-handler) {:alg    :HS256
@@ -180,4 +185,8 @@
     (wrap-jwt (dummy-handler) {:alg    :HS256
                                :issuer issuer
                                :secret "somesecret"
-                               :bollox "whatever"})))
+                               :bollox "whatever"}))
+
+  (deftest missing-issuer-does-not-cause-error
+    (wrap-jwt (dummy-handler) {:alg    :HS256
+                               :secret "whatever"})))

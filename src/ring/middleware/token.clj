@@ -34,14 +34,14 @@
 (s/def ::leeway nat-int?)
 
 (s/def ::secret (s/and string? (complement clojure.string/blank?)))
-(s/def ::secret-opts (s/and (s/keys :req-un [::alg ::issuer ::secret])
+(s/def ::secret-opts (s/and (s/keys :req-un [::alg ::secret])
                             #(contains? #{:HS256} (:alg %))))
 
 (s/def ::public-key #(instance? PublicKey %))
 (s/def ::jwk-endpoint (s/and string? #(re-matches #"(?i)^https://.+$" %)))
 (s/def ::public-key-opts (s/and #(contains? #{:RS256} (:alg %))
-                                (s/or :key (s/keys :req-un [::alg ::issuer ::public-key])
-                                      :url (s/keys :req-un [::alg ::issuer ::jwk-endpoint]))))
+                                (s/or :key (s/keys :req-un [::alg ::public-key])
+                                      :url (s/keys :req-un [::alg ::jwk-endpoint]))))
 
 (defmulti decode
           "Decodes and verifies the signature of the given JWT token. The decoded claims from the token are returned."

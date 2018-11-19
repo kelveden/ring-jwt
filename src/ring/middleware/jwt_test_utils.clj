@@ -27,7 +27,7 @@
   (let [header    (-> {:alg alg :typ "JWT" :kid public-key-id}
                       (json/generate-string)
                       (str->base64))
-        payload   (-> (merge claims {:iss issuer})
+        payload   (-> (if issuer (merge claims {:iss issuer}) claims)
                       (json/generate-string)
                       (str->base64))
         signature (->> (format "%s.%s" header payload)
