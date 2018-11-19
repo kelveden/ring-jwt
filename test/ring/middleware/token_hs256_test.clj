@@ -8,43 +8,52 @@
 
 (def ^:private dummy-payload {:some "data"})
 (def ^:private alg :HS256)
+(def ^:private issuer "me")
 
 (deftest can-decode-validly-signed-token
   (let [payload {:field1 "whatever" :field2 "something else"}
         secret  (util/generate-hmac-secret)
-        token   (util/encode-token payload {:alg  alg
-                                          :secret secret})]
+        token   (util/encode-token payload {:alg    alg
+                                            :issuer issuer
+                                            :secret secret})]
     (is (= (token/decode token {:alg    alg
+                                :issuer issuer
                                 :secret secret})
-           payload))))
+           (merge payload {:iss issuer})))))
 
 (deftest decoding-token-signed-with-non-matching-secret-causes-error
   (let [secret       (util/generate-hmac-secret)
         wrong-secret (util/generate-hmac-secret)
-        token        (util/encode-token dummy-payload {:alg  alg
-                                                     :secret secret})]
+        token        (util/encode-token dummy-payload {:alg    alg
+                                                       :issuer issuer
+                                                       :secret secret})]
     (is (thrown? SignatureVerificationException
                  (token/decode token {:alg    alg
+                                      :issuer issuer
                                       :secret wrong-secret})))))
 
 (deftest decoding-token-with-tampered-header-causes-error
   (let [secret          (util/generate-hmac-secret)
-        token           (util/encode-token dummy-payload {:alg  alg
-                                                        :secret secret})
+        token           (util/encode-token dummy-payload {:alg    alg
+                                                          :issuer issuer
+                                                          :secret secret})
         [_ payload signature] (split token #"\.")
         tampered-header (util/str->base64 (json/generate-string {:alg alg :a 1}))
         tampered-token  (join "." [tampered-header payload signature])]
     (is (thrown? SignatureVerificationException
                  (token/decode tampered-token {:alg    alg
+                                               :issuer issuer
                                                :secret secret})))))
 
 (deftest decoding-token-with-tampered-payload-causes-error
   (let [secret           (util/generate-hmac-secret)
-        token            (util/encode-token dummy-payload {:alg  alg
-                                                         :secret secret})
+        token            (util/encode-token dummy-payload {:alg    alg
+                                                           :issuer issuer
+                                                           :secret secret})
         [header _ signature] (split token #"\.")
         tampered-payload (util/str->base64 (json/generate-string {:a 1}))
         tampered-token   (join "." [header tampered-payload signature])]
     (is (thrown? SignatureVerificationException
                  (token/decode tampered-token {:alg    alg
+                                               :issuer issuer
                                                :secret secret})))))

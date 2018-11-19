@@ -10,6 +10,7 @@ Once wired into to your ring server, the middleware will:
 * Will add the claims it finds in the token as a clojure map against the `:claims` key on the incoming request.
 * Add an empty `:claims` map to the request if no token is found.
 * Respond with a `401` if the JWS signature in the token cannot be verified.
+* Respond with a `401` if the token was not issued by the expected issuer.
 * Respond with a `401` if the token has expired (i.e. the [exp]() claim indicates a time
 in the past)
 * Respond with a `401` if the token will only be active in the future (i.e. the [nbf]() claim indicates
@@ -30,6 +31,7 @@ Note that there is the option to specify a leeway for the `exp`/`nbf` checks - s
   (response {:foo "bar"}))
 
 (jwt/wrap-jwt handler {:alg        :HS256
+                       :issuer     "your-issuer"
                        :public-key "yoursecret"})
 ```
 
@@ -42,9 +44,9 @@ supported for the purposes of JWS:
 
 | Algorithm                      | Options                                       |
 | ------------------------------ | --------------------------------------------- |
-| RSASSA-PKCS-v1_5 using SHA-256 | `{:alg :RS256 :public-key public-key}` <sup>[1]</sup> |
-|                                | `{:alg :RS256 :jwk-endpoint "https://your/jwk/endpoint :key-id "key-id"}` | 
-| HMAC using SHA-256             | `{:alg :HS256 :public-key "your-secret"}`     |
+| RSASSA-PKCS-v1_5 using SHA-256 | `{:alg :RS256 :issuer "your-issuer" :public-key public-key}` <sup>[1]</sup> |
+|                                | `{:alg :RS256 :issuer "your-issuer" :jwk-endpoint "https://your/jwk/endpoint}` | 
+| HMAC using SHA-256             | `{:alg :HS256 :issuer "your-issuer" :public-key "your-secret"}`     |
 
 [1] `public-key` is of type `java.security.PublicKey`.
 
