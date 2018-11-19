@@ -19,10 +19,10 @@
       (keywordize-keys)))
 
 (defn- decode-token*
-  [algorithm token issuer leeway]
+  [algorithm token {:keys [issuer leeway-seconds]}]
   (-> algorithm
       (JWT/require)
-      (.acceptLeeway (or leeway 0))
+      (.acceptLeeway (or leeway-seconds 0))
       (.withIssuer issuer)
       (.build)
       (.verify token)
@@ -51,17 +51,17 @@
   (throw (JWTDecodeException. "Could not parse algorithm.")))
 
 (defmethod decode :RS256
-  [token {:keys [public-key jwk-endpoint issuer leeway-seconds] :as opts}]
+  [token {:keys [public-key jwk-endpoint] :as opts}]
   {:pre [(s/valid? ::public-key-opts opts)]}
 
   (let [[public-key-type _] (s/conform ::public-key-opts opts)]
     (-> (Algorithm/RSA256 (case public-key-type
                             :url (jwk/jwk-provider jwk-endpoint)
                             :key public-key))
-        (decode-token* token issuer leeway-seconds))))
+        (decode-token* token opts))))
 
 (defmethod decode :HS256
-  [token {:keys [secret issuer leeway-seconds] :as opts}]
+  [token {:keys [secret] :as opts}]
   {:pre [(s/valid? ::secret-opts opts)]}
   (-> (Algorithm/HMAC256 secret)
-      (decode-token* token issuer leeway-seconds)))
+      (decode-token* token opts)))
