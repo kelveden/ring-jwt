@@ -26,10 +26,10 @@
 (defn- encode-token*
   [algorithm claims]
   (let [jwt          (JWT/create)
-        with-payload (reduce
-                       (fn [token [k v]] (.withClaim token (name k) v))
-                       jwt claims)]
-      (.sign with-payload algorithm)))
+        payload (reduce
+                  (fn [token [k v]] (.withClaim token (name k) v))
+                  jwt claims)]
+      (.sign payload algorithm)))
 
 (defmulti encode-token
           "Encodes the given claims as a JWT using the given arguments as a basis."
