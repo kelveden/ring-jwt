@@ -7,7 +7,8 @@
             [ring.middleware.jwk :as jwk])
   (:import (com.auth0.jwt.exceptions SignatureVerificationException)
            (java.util UUID)
-           (com.auth0.jwt.interfaces RSAKeyProvider)))
+           (com.auth0.jwt.interfaces RSAKeyProvider)
+           (com.auth0.jwt.algorithms Algorithm)))
 
 (def ^:private dummy-payload {:some "data"})
 (def ^:private alg :RS256)
@@ -28,9 +29,12 @@
   (let [payload      {:field1 "whatever" :field2 "something else"}
         {:keys [private-key public-key]} (util/generate-key-pair alg)
         key-id       (str (UUID/randomUUID))
-        token        (util/encode-token payload {:alg           alg
-                                                 :public-key-id key-id
-                                                 :private-key   private-key})
+        algorithm    (Algorithm/RSA256 (reify RSAKeyProvider
+                                         (getPublicKeyById [_, _] public-key)
+                                         (getPrivateKey [_] private-key)
+                                         (getPrivateKeyId [_] key-id)))
+        token        (util/encode-token payload {:alg       :custom
+                                                 :algorithm algorithm})
         jwk-endpoint "https://my/jwk"]
 
     (with-redefs [jwk/jwk-provider (fn [u]
