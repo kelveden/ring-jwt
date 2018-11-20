@@ -31,7 +31,7 @@
 
 (s/def ::alg #{:RS256 :HS256})
 (s/def ::issuer (s/and string? (complement clojure.string/blank?)))
-(s/def ::leeway nat-int?)
+(s/def ::leeway-seconds nat-int?)
 
 (s/def ::secret (s/and string? (complement clojure.string/blank?)))
 (s/def ::secret-opts (s/and (s/keys :req-un [::alg ::secret])
