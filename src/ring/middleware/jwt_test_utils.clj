@@ -22,13 +22,14 @@
       (str->bytes)
       (Base64/encodeBase64URLSafeString)))
 
-;; TODO possibility to change runtime types to correct according to com.auth0.jwt.impl.PayloadSerializer e.g. java.time.Instant -> java.util.Date
+(defn add-claim [token [k v]]
+  (.withClaim token (name k) v))
+
 (defn- encode-token*
   [algorithm claims]
-  (let [jwt          (JWT/create)
-        payload (reduce
-                  (fn [token [k v]] (.withClaim token (name k) v))
-                  jwt claims)]
+  (let [jwt     (JWT/create)
+        payload (->> claims
+                     (reduce add-claim jwt))]
       (.sign payload algorithm)))
 
 (defmulti encode-token
@@ -44,10 +45,6 @@
   [claims {:keys [secret]}]
   (-> (Algorithm/HMAC256 secret)
       (encode-token* claims)))
-
-(defmethod encode-token :custom
-  [claims {:keys [algorithm]}]
-  (encode-token* algorithm claims))
 
 (defn generate-key-pair
   "Generates a private/public key pair based on the specified cryptographic algorithm."

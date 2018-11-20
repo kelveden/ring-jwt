@@ -15,7 +15,7 @@
   [claims alg-opts]
   (util/add-jwt-token {} claims alg-opts))
 
-(defn- epoch-seconds []
+(defn- epoch-seconds-instant []
   (-> (Instant/now)
       (.getEpochSecond)
       (Instant/ofEpochSecond)))
@@ -110,7 +110,7 @@
 
 (deftest expired-jwt-token-causes-401
   (let [{:keys [private-key public-key]} (util/generate-key-pair :RS256)
-        claims  {:exp (-> (epoch-seconds)
+        claims  {:exp (-> (epoch-seconds-instant)
                           (.minusSeconds 1)
                           (instant->date))}
         handler (wrap-jwt (dummy-handler) {:alg        :RS256
@@ -123,7 +123,7 @@
 
 (deftest future-active-jwt-token-causes-401
   (let [{:keys [private-key public-key]} (util/generate-key-pair :RS256)
-        claims {:nbf (-> (epoch-seconds)
+        claims {:nbf (-> (epoch-seconds-instant)
                          (.plusSeconds 1)
                          (instant->date))}
         handler (wrap-jwt (dummy-handler) {:alg        :RS256
@@ -139,7 +139,7 @@
 
 (deftest expired-jwt-token-within-specified-leeway-is-valid
   (let [{:keys [private-key public-key]} (util/generate-key-pair :RS256)
-        claims  {:exp (-> (epoch-seconds)
+        claims  {:exp (-> (epoch-seconds-instant)
                           (.minusSeconds 100)
                           (instant->date))}
         handler (wrap-jwt (dummy-handler) {:alg            :RS256
@@ -152,7 +152,7 @@
 
 (deftest future-jwt-token-within-specified-leeway-is-valid
   (let [{:keys [private-key public-key]} (util/generate-key-pair :RS256)
-        claims  {:nbf (-> (epoch-seconds)
+        claims  {:nbf (-> (epoch-seconds-instant)
                            (.plusSeconds 100)
                            (instant->date))}
         handler (wrap-jwt (dummy-handler) {:alg            :RS256

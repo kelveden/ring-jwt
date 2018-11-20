@@ -29,12 +29,12 @@
   (let [payload      {:field1 "whatever" :field2 "something else"}
         {:keys [private-key public-key]} (util/generate-key-pair alg)
         key-id       (str (UUID/randomUUID))
+        ; Use the algorithm directly to assign a signing key id to the `kid` header
         algorithm    (Algorithm/RSA256 (reify RSAKeyProvider
                                          (getPublicKeyById [_, _] public-key)
                                          (getPrivateKey [_] private-key)
                                          (getPrivateKeyId [_] key-id)))
-        token        (util/encode-token payload {:alg       :custom
-                                                 :algorithm algorithm})
+        token        (#'util/encode-token* algorithm payload)
         jwk-endpoint "https://my/jwk"]
 
     (with-redefs [jwk/jwk-provider (fn [u]
