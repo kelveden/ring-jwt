@@ -43,7 +43,7 @@ supported for the purposes of JWS:
 | Algorithm                      | Options                                       |
 | ------------------------------ | --------------------------------------------- |
 | RSASSA-PKCS-v1_5 using SHA-256 | `{:alg :RS256 :public-key public-key}` <sup>[1]</sup> |
-|                                | `{:alg :RS256 :jwk-endpoint "https://your/jwk/endpoint :key-id "key-id"}` | 
+|                                | `{:alg :RS256 :jwk-endpoint "https://your/jwk/endpoint"}` | 
 | HMAC using SHA-256             | `{:alg :HS256 :public-key "your-secret"}`     |
 
 [1] `public-key` is of type `java.security.PublicKey`.
@@ -52,6 +52,7 @@ Additionally, the following optional options are supported:
 
 * `leeway-seconds`: The number of seconds leeway to give when verifying the expiry/active from claims
 of the token (i.e. the `exp` and `nbf` claims).
+* `issuer`: The issuer of the token, if this does not match the issuer on a token a `401` will be returned.
 
 ### Finding the token on the request
 Currently the library looks in order from the following locations:
