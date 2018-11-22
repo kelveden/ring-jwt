@@ -2,14 +2,16 @@
   "Test utility functions for use in writing tests against ring servers that have the
   ring-jwt middleware. Not designed for use in production code."
   (:require [clojure.test :refer :all]
-            [clojure.walk :refer [stringify-keys walk]])
+            [clojure.walk :refer [stringify-keys walk]]
+            [cheshire.core :as json])
   (:import (com.auth0.jwt.algorithms Algorithm)
            (org.apache.commons.codec Charsets)
            (org.apache.commons.codec.binary Base64)
            (java.security KeyPairGenerator)
            (java.util UUID HashMap)
            (com.auth0.jwt.interfaces RSAKeyProvider)
-           (com.auth0.jwt JWT JWTCreator$Builder)))
+           (com.auth0.jwt JWT JWTCreator$Builder)
+           (java.nio.charset StandardCharsets)))
 
 (def ^:private algorithm->key-type
   {:RS256 "RSA"})
@@ -97,3 +99,20 @@
   [req claims alg-opts]
   (assoc-in req [:headers "Authorization"]
             (str "Bearer " (encode-token claims alg-opts))))
+
+(defn- base64-encode-big-endian
+  [x]
+  (-> (.toByteArray x)
+      (Base64/encodeBase64)
+      (String. StandardCharsets/UTF_8)))
+
+(def create-rsa-jwk
+  "Creates the JKW response for an RS256 public key with the key id.
+  This should be returned by your jwkEndpoint in tests"
+  [key-id rsa-public-key]
+  (json/generate-string {:keys [{:kid key-id
+                                 :kty (.getAlgorithm rsa-public-key)
+                                 :alg "RS256"
+                                 :use "sig"
+                                 :e   (base64-encode-big-endian (.getPublicExponent rsa-public-key))
+                                 :n   (base64-encode-big-endian (.getModulus rsa-public-key))}]}))
