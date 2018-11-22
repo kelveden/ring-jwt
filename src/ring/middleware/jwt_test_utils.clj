@@ -106,7 +106,7 @@
       (Base64/encodeBase64)
       (String. StandardCharsets/UTF_8)))
 
-(def create-rsa-jwk
+(defn create-rsa-jwk
   "Creates the JKW response for an RS256 public key with the key id.
   This should be returned by your jwkEndpoint in tests"
   [key-id rsa-public-key]
