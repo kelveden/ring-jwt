@@ -163,6 +163,20 @@
         res     (handler req)]
     (is (= (update claims :nbf date->seconds) (:claims res)))))
 
+(deftest test-object-and-vector-claims-can-be-added
+         (let [{:keys [private-key public-key]} (util/generate-key-pair :RS256)
+               claims  {:foo
+                        {:a 1 :b 2
+                         :c {:d 3}
+                         :e [4 5 6]}
+                        :bar [1 2 3]}
+               handler (wrap-jwt (dummy-handler) {:alg        :RS256
+                                                  :public-key public-key})
+               req     (build-request claims {:alg         :RS256
+                                              :private-key private-key})
+               res     (handler req)]
+              (is (= claims (:claims res)))))
+
 (testing "invalid options"
   (deftest missing-option-causes-error
     (is (thrown-with-msg? ExceptionInfo #"Invalid options."

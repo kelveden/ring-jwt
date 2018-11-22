@@ -1,13 +1,14 @@
 (ns ring.middleware.jwt-test-utils
   "Test utility functions for use in writing tests against ring servers that have the
   ring-jwt middleware. Not designed for use in production code."
-  (:require [clojure.test :refer :all])
+  (:require [clojure.test :refer :all]
+            [clojure.walk :refer [stringify-keys walk]])
   (:import (com.auth0.jwt.algorithms Algorithm)
            (org.apache.commons.codec Charsets)
            (org.apache.commons.codec.binary Base64)
            (java.security KeyPairGenerator)
-           (java.util UUID)
-           (com.auth0.jwt JWT)))
+           (java.util UUID HashMap)
+           (com.auth0.jwt JWT JWTCreator$Builder)))
 
 (def ^:private algorithm->key-type
   {:RS256 "RSA"})
@@ -22,8 +23,30 @@
       (str->bytes)
       (Base64/encodeBase64URLSafeString)))
 
+(defn- walk-map [map f]
+  (walk f identity map))
+
+(defn- recurse-hash-map [map]
+  (let [updated     (walk-map map (fn [[k v]] (if (map? v) [k (recurse-hash-map v)] [k v])))
+        stringified (stringify-keys updated)]
+    (HashMap. stringified)))
+
+;; The java library refuses to accept maps as claims so we are using reflection here to force maps into the claims
+(def ^:private payload-claims
+  (.getDeclaredField JWTCreator$Builder "payloadClaims"))
+
+(defn- force-add-claim [token key value]
+  (.setAccessible payload-claims true)
+  (let [claims (.get payload-claims token)]
+    (.put claims key value))
+  token)
+
 (defn add-claim [token [k v]]
-  (.withClaim token (name k) v))
+  (let [key (name k)]
+    (cond
+      (map? v)    (force-add-claim token key (recurse-hash-map v))
+      (vector? v) (force-add-claim token key v)
+      :else (.withClaim token key v))))
 
 (defn- encode-token*
   [algorithm claims]
