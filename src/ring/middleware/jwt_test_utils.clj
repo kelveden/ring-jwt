@@ -8,6 +8,7 @@
            (org.apache.commons.codec.binary Base64)
            (java.security KeyPairGenerator)
            (java.util UUID HashMap)
+           (com.auth0.jwt.interfaces RSAKeyProvider)
            (com.auth0.jwt JWT JWTCreator$Builder)))
 
 (def ^:private algorithm->key-type
@@ -60,9 +61,14 @@
           (fn [_ {:keys [alg]}] alg))
 
 (defmethod encode-token :RS256
-  [claims {:keys [private-key]}]
-  (-> (Algorithm/RSA256 private-key)
-      (encode-token* claims)))
+  [claims {:keys [private-key key-id public-key]}]
+  (let [algorithm (if (and key-id public-key)
+                    (Algorithm/RSA256 (reify RSAKeyProvider
+                                        (getPublicKeyById [_, _] public-key)
+                                        (getPrivateKey [_] private-key)
+                                        (getPrivateKeyId [_] key-id)))
+                    (Algorithm/RSA256 private-key))]
+    (encode-token* algorithm claims)))
 
 (defmethod encode-token :HS256
   [claims {:keys [secret]}]
