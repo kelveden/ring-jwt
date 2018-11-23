@@ -6,7 +6,7 @@
             [ring.middleware.jwt :refer [wrap-jwt]])
   (:import (clojure.lang ExceptionInfo)
            (java.time Instant)
-           (java.util Date)))
+           (java.util Date UUID)))
 
 (def ^:private dummy-handler (constantly identity))
 (def ^:private issuer "issuer")
@@ -176,6 +176,11 @@
                                               :private-key private-key})
                res     (handler req)]
               (is (= claims (:claims res)))))
+
+(deftest allow-http-for-jwk
+  (wrap-jwt (dummy-handler) {:alg          :RS256
+                             :jwk-endpoint "http://my/jwk"
+                             :key-id       (str (UUID/randomUUID))}))
 
 (testing "invalid options"
   (deftest missing-option-causes-error
