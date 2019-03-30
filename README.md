@@ -30,7 +30,7 @@ Note that there is the option to specify a leeway for the `exp`/`nbf` checks - s
   (response {:foo "bar"}))
 
 (jwt/wrap-jwt handler {:alg        :HS256
-                       :public-key "yoursecret"})
+                       :secret "yoursecret"})
 ```
 
 Depending upon the cryptographic algorithm that is selected for the middleware, a different
@@ -44,7 +44,7 @@ supported for the purposes of JWS:
 | ------------------------------ | --------------------------------------------- |
 | RSASSA-PKCS-v1_5 using SHA-256 | `{:alg :RS256 :public-key public-key}` <sup>[1]</sup> |
 |                                | `{:alg :RS256 :jwk-endpoint "https://your/jwk/endpoint"}` | 
-| HMAC using SHA-256             | `{:alg :HS256 :public-key "your-secret"}`     |
+| HMAC using SHA-256             | `{:alg :HS256 :secret "your-secret"}`     |
 
 [1] `public-key` is of type `java.security.PublicKey`.
 
