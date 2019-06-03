@@ -9,12 +9,17 @@
            (org.apache.commons.codec.binary Base64)
            (java.security KeyPairGenerator)
            (java.util UUID HashMap)
-           (com.auth0.jwt.interfaces RSAKeyProvider)
+           (com.auth0.jwt.interfaces RSAKeyProvider ECDSAKeyProvider)
            (com.auth0.jwt JWT JWTCreator$Builder)
            (java.nio.charset StandardCharsets)))
 
 (def ^:private algorithm->key-type
-  {:RS256 "RSA"})
+  {:RS256 "RSA"
+   :ES256 "EC"})
+
+(def ^:private algorithm->key-size
+  {:RS256 512
+   :ES256 256})
 
 (defn- str->bytes
   [x]
@@ -47,7 +52,7 @@
 (defn add-claim [token [k v]]
   (let [key (name k)]
     (cond
-      (map? v)    (force-add-claim token key (recurse-hash-map v))
+      (map? v) (force-add-claim token key (recurse-hash-map v))
       (vector? v) (force-add-claim token key v)
       :else (.withClaim token key v))))
 
@@ -56,7 +61,7 @@
   (let [jwt     (JWT/create)
         payload (->> claims
                      (reduce add-claim jwt))]
-      (.sign payload algorithm)))
+    (.sign payload algorithm)))
 
 (defmulti encode-token
           "Encodes the given claims as a JWT using the given arguments as a basis."
@@ -64,12 +69,20 @@
 
 (defmethod encode-token :RS256
   [claims {:keys [private-key key-id public-key]}]
-  (let [algorithm (if (and key-id public-key)
-                    (Algorithm/RSA256 (reify RSAKeyProvider
-                                        (getPublicKeyById [_, _] public-key)
-                                        (getPrivateKey [_] private-key)
-                                        (getPrivateKeyId [_] key-id)))
-                    (Algorithm/RSA256 private-key))]
+  (let [algorithm (Algorithm/RSA256
+                    (reify RSAKeyProvider
+                      (getPublicKeyById [_, _] public-key)
+                      (getPrivateKey [_] private-key)
+                      (getPrivateKeyId [_] key-id)))]
+    (encode-token* algorithm claims)))
+
+(defmethod encode-token :ES256
+  [claims {:keys [private-key key-id public-key]}]
+  (let [algorithm (Algorithm/ECDSA256
+                    (reify ECDSAKeyProvider
+                      (getPublicKeyById [_, _] public-key)
+                      (getPrivateKey [_] private-key)
+                      (getPrivateKeyId [_] key-id)))]
     (encode-token* algorithm claims)))
 
 (defmethod encode-token :HS256
@@ -79,14 +92,16 @@
 
 (defn generate-key-pair
   "Generates a private/public key pair based on the specified cryptographic algorithm."
-  [alg & [key-size]]
-  (let [generator (doto (->> alg
-                             (get algorithm->key-type)
-                             (KeyPairGenerator/getInstance))
-                    (.initialize (or key-size 1024)))
-        key-pair  (.generateKeyPair generator)]
+  [alg & {:keys [key-size]}]
+  (let [key-size-final (or key-size
+                           (algorithm->key-size alg))
+        generator      (doto (->> alg
+                                  (get algorithm->key-type)
+                                  (KeyPairGenerator/getInstance))
+                         (.initialize key-size-final))
+        key-pair       (.generateKeyPair generator)]
     {:private-key (.getPrivate key-pair)
-     :public-key (.getPublic key-pair)}))
+     :public-key  (.getPublic key-pair)}))
 
 (defn generate-hmac-secret
   "Generates a random string to use as a HMAC secret."
