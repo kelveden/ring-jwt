@@ -115,19 +115,17 @@
   (assoc-in req [:headers "Authorization"]
             (str "Bearer " (encode-token claims alg-opts))))
 
-(defn- base64-encode-big-endian
-  [x]
-  (-> (.toByteArray x)
-      (Base64/encodeBase64)
-      (String. StandardCharsets/UTF_8)))
-
-(defn create-rsa-jwk
-  "Creates the JKW response for an RS256 public key with the key id.
-  This should be returned by your jwkEndpoint in tests"
-  [key-id rsa-public-key]
-  (json/generate-string {:keys [{:kid key-id
-                                 :kty (.getAlgorithm rsa-public-key)
-                                 :alg "RS256"
-                                 :use "sig"
-                                 :e   (base64-encode-big-endian (.getPublicExponent rsa-public-key))
-                                 :n   (base64-encode-big-endian (.getModulus rsa-public-key))}]}))
+(defn generate-jwk-response
+  "Creates the JWK response for an RS256 public key with the key id.
+  This should be returned by your JWK endpoint in tests"
+  [key-id public-key]
+  (let [base64-encode-big-endian #(-> (.toByteArray %)
+                                      (Base64/encodeBase64)
+                                      (String. StandardCharsets/UTF_8))]
+    (json/generate-string
+      {:keys [{:kid key-id
+               :kty (.getAlgorithm public-key)
+               :alg "RS256"
+               :use "sig"
+               :e   (base64-encode-big-endian (.getPublicExponent public-key))
+               :n   (base64-encode-big-endian (.getModulus public-key))}]})))

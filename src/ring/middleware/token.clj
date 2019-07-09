@@ -54,13 +54,12 @@
   (throw (JWTDecodeException. "Could not parse algorithm.")))
 
 (defmethod decode :ES256
-  [token {:keys [public-key jwk-endpoint] :as opts}]
+  [token {:keys [public-key] :as opts}]
   {:pre [(s/valid? ::public-key-opts opts)]}
 
   (let [[public-key-type _] (s/conform ::public-key-opts opts)]
-    (-> (Algorithm/ECDSA256 (case public-key-type
-                              :url (jwk/jwk-provider jwk-endpoint)
-                              :key public-key))
+    (assert (= :key public-key-type))
+    (-> (Algorithm/ECDSA256 public-key)
         (decode-token* token opts))))
 
 (defmethod decode :RS256
@@ -69,7 +68,7 @@
 
   (let [[public-key-type _] (s/conform ::public-key-opts opts)]
     (-> (Algorithm/RSA256 (case public-key-type
-                            :url (jwk/jwk-provider jwk-endpoint)
+                            :url (jwk/rsa-key-provider jwk-endpoint)
                             :key public-key))
         (decode-token* token opts))))
 

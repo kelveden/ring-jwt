@@ -43,7 +43,6 @@ supported for the purposes of JWS:
 | Algorithm                      | Options                                       |
 | ------------------------------ | --------------------------------------------- |
 | ECDSA using P-256 and SHA-256  | `{:alg :ES256 :public-key public-key}` |
-|                                | `{:alg :ES256 :jwk-endpoint "https://your/jwk/endpoint"}` |
 | RSASSA-PKCS-v1_5 using SHA-256 | `{:alg :RS256 :public-key public-key}` <sup>[1]</sup> |
 |                                | `{:alg :RS256 :jwk-endpoint "https://your/jwk/endpoint"}` | 
 | HMAC using SHA-256             | `{:alg :HS256 :secret "your-secret"}`     |

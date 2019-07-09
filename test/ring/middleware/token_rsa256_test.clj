@@ -4,10 +4,9 @@
             [clojure.test :refer :all]
             [ring.middleware.jwt-test-utils :as util]
             [ring.middleware.token :as token]
-            [ring.middleware.jwk :as jwk])
+            [clj-wiremock.core :as wmk])
   (:import (com.auth0.jwt.exceptions SignatureVerificationException)
-           (java.util UUID)
-           (com.auth0.jwt.interfaces RSAKeyProvider)))
+           (java.util UUID)))
 
 (def ^:private dummy-payload {:some "data"})
 (def ^:private alg :RS256)
@@ -25,25 +24,24 @@
            payload))))
 
 (deftest can-decode-token-based-on-jwk-provider-url
-  (let [payload      {:field1 "whatever" :field2 "something else"}
+  (let [payload       {:field1 "whatever" :field2 "something else"}
         {:keys [private-key public-key]} (util/generate-key-pair alg)
-        key-id       (str (UUID/randomUUID))
-        token        (util/encode-token payload {:alg         alg
-                                                 :private-key private-key
-                                                 :public-key  public-key
-                                                 :key-id      key-id})
-        jwk-endpoint "https://my/jwk"]
+        key-id        (str (UUID/randomUUID))
+        token         (util/encode-token payload {:alg         alg
+                                                  :private-key private-key
+                                                  :public-key  public-key
+                                                  :key-id      key-id})
+        wiremock-port 3000
+        jwk-endpoint  (format "http://localhost:%s/my/jwk" wiremock-port)]
 
-    (with-redefs [jwk/jwk-provider (fn [u]
-                                     (reify RSAKeyProvider
-                                       (getPublicKeyById [_, k]
-                                         (when (and (= u jwk-endpoint) (= k key-id))
-                                           public-key))
-                                       (getPrivateKey [_] nil)
-                                       (getPrivateKeyId [_] nil)))]
-      (is (= (token/decode token {:alg          alg
-                                  :jwk-endpoint jwk-endpoint})
-             payload)))))
+    (wmk/with-wiremock
+      {:port wiremock-port}
+      (wmk/with-stubs
+        [{:req [:GET "/my/jwk"] :res [200 {:body (util/generate-jwk-response key-id public-key)}]}]
+
+        (is (= (token/decode token {:alg          alg
+                                    :jwk-endpoint jwk-endpoint})
+               payload))))))
 
 (deftest decoding-token-signed-with-non-matching-key-causes-error
   (let [{:keys [private-key]} (util/generate-key-pair alg)

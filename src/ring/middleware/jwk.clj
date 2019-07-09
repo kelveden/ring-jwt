@@ -1,17 +1,21 @@
 (ns ring.middleware.jwk
   (:import (java.net URL)
-           (com.auth0.jwk GuavaCachedJwkProvider UrlJwkProvider Jwk)
-           (com.auth0.jwt.interfaces RSAKeyProvider)))
+           (com.auth0.jwk GuavaCachedJwkProvider UrlJwkProvider)
+           (com.auth0.jwt.interfaces RSAKeyProvider ECDSAKeyProvider)))
 
-(defn ^RSAKeyProvider jwk-provider
-  "Creates a provider that gets the public keys for tokens"
+(defn- new-jwk-provider
   [url]
-  (let [jwk-provider (-> (URL. url)
-                         (UrlJwkProvider.)
-                         (GuavaCachedJwkProvider.))]
-    (reify RSAKeyProvider
-      (getPublicKeyById [_, key-id]
-        (-> (.get jwk-provider key-id)
-            (.getPublicKey)))
-      (getPrivateKey [_] nil)
-      (getPrivateKeyId [_] nil))))
+  (-> (URL. url)
+      (UrlJwkProvider.)
+      (GuavaCachedJwkProvider.)))
+
+(def rsa-key-provider
+  (memoize
+    (fn [url]
+      (let [jwk-provider (new-jwk-provider url)]
+        (reify RSAKeyProvider
+          (getPublicKeyById [_ key-id]
+            (-> (.get jwk-provider key-id)
+                (.getPublicKey)))
+          (getPrivateKey [_] nil)
+          (getPrivateKeyId [_] nil))))))
