@@ -55,11 +55,11 @@ Additionally, the following optional options are supported:
 * `leeway-seconds`: The number of seconds leeway to give when verifying the expiry/active from claims
 of the token (i.e. the `exp` and `nbf` claims).
 * `issuer`: The issuer of the token, if this does not match the issuer on a token a `401` will be returned.
+* `find-token-fn`: The single-argument function that will be used to pull the (encoded) token from the
+request map.
 
-### Finding the token on the request
-Currently the library looks in order from the following locations:
-
-1. `Authorization` header bearer token (i.e. an `Authorization` HTTP header of the form "Bearer TOKEN")
+If a `find-token-fn` function is not specified in the options the default behaviour is to look
+for the token as the bearer token given in the `Authorization` header (i.e. an `Authorization` HTTP header of the form "Bearer TOKEN")
 
 ## Useful links
 

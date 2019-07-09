@@ -34,7 +34,20 @@
         res     (handler req)]
     (is (= claims (:claims res)))))
 
-(deftest claims-from-valid-jwt-token-in-authorization-header-are-added-to-request-without-validating-issuer
+(deftest can-use-finder-function-to-locate-token
+  (let [{:keys [private-key public-key]} (util/generate-key-pair :RS256)
+        claims  {:a 1 :b 2 :iss issuer}
+        handler (wrap-jwt (dummy-handler) {:alg           :RS256
+                                           :issuer        issuer
+                                           :public-key    public-key
+                                           :find-token-fn (fn [{:keys [headers]}] (get headers "X-Whatever"))})
+        token   (util/encode-token claims {:alg         :RS256
+                                           :private-key private-key})
+        req     {:headers {"X-Whatever" token}}
+        res     (handler req)]
+    (is (= claims (:claims res)))))
+
+(deftest validating-issuer-is-optional
   (let [{:keys [private-key public-key]} (util/generate-key-pair :RS256)
         claims  {:a 1 :b 2 :iss issuer}
         handler (wrap-jwt (dummy-handler) {:alg        :RS256
@@ -61,7 +74,7 @@
         handler (wrap-jwt (dummy-handler) {:alg    :HS256
                                            :secret (util/generate-hmac-secret)})
         req     (build-request claims {:alg         :RS256
-                                       :issuer       (str "not" issuer)
+                                       :issuer      (str "not" issuer)
                                        :private-key private-key})
         {:keys [body status]} (handler req)]
     (is (= 401 status))
@@ -86,7 +99,7 @@
 (deftest jwt-token-with-tampered-payload-causes-401
   (let [{:keys [private-key public-key]} (util/generate-key-pair :RS256)
         claims           {:a 1 :b 2}
-        token            (util/encode-token claims {:alg       :RS256
+        token            (util/encode-token claims {:alg         :RS256
                                                     :private-key private-key})
 
         [header _ signature] (split token #"\.")
@@ -123,9 +136,9 @@
 
 (deftest future-active-jwt-token-causes-401
   (let [{:keys [private-key public-key]} (util/generate-key-pair :RS256)
-        claims {:nbf (-> (epoch-seconds-instant)
-                         (.plusSeconds 1)
-                         (instant->date))}
+        claims  {:nbf (-> (epoch-seconds-instant)
+                          (.plusSeconds 1)
+                          (instant->date))}
         handler (wrap-jwt (dummy-handler) {:alg        :RS256
                                            :public-key public-key})
         req     (build-request claims {:alg         :RS256
@@ -153,8 +166,8 @@
 (deftest future-jwt-token-within-specified-leeway-is-valid
   (let [{:keys [private-key public-key]} (util/generate-key-pair :RS256)
         claims  {:nbf (-> (epoch-seconds-instant)
-                           (.plusSeconds 100)
-                           (instant->date))}
+                          (.plusSeconds 100)
+                          (instant->date))}
         handler (wrap-jwt (dummy-handler) {:alg            :RS256
                                            :public-key     public-key
                                            :leeway-seconds 1000})
@@ -164,18 +177,18 @@
     (is (= (update claims :nbf date->seconds) (:claims res)))))
 
 (deftest test-object-and-vector-claims-can-be-added
-         (let [{:keys [private-key public-key]} (util/generate-key-pair :RS256)
-               claims  {:foo
-                        {:a 1 :b 2
-                         :c {:d 3}
-                         :e [4 5 6]}
-                        :bar [1 2 3]}
-               handler (wrap-jwt (dummy-handler) {:alg        :RS256
-                                                  :public-key public-key})
-               req     (build-request claims {:alg         :RS256
-                                              :private-key private-key})
-               res     (handler req)]
-              (is (= claims (:claims res)))))
+  (let [{:keys [private-key public-key]} (util/generate-key-pair :RS256)
+        claims  {:foo
+                      {:a 1 :b 2
+                       :c {:d 3}
+                       :e [4 5 6]}
+                 :bar [1 2 3]}
+        handler (wrap-jwt (dummy-handler) {:alg        :RS256
+                                           :public-key public-key})
+        req     (build-request claims {:alg         :RS256
+                                       :private-key private-key})
+        res     (handler req)]
+    (is (= claims (:claims res)))))
 
 (deftest allow-http-for-jwk
   (wrap-jwt (dummy-handler) {:alg          :RS256

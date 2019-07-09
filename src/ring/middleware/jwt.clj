@@ -3,7 +3,7 @@
             [ring.middleware.token :as token])
   (:import (com.auth0.jwt.exceptions SignatureVerificationException AlgorithmMismatchException JWTVerificationException TokenExpiredException)))
 
-(defn- find-token
+(defn- find-token*
   [{:keys [headers]}]
   (some->> headers
            (filter #(.equalsIgnoreCase "authorization" (key %)))
@@ -25,13 +25,13 @@
   a 401 response is produced.
 
   If the JWT token does not exist, an empty :claims map is added to the incoming request."
-  [handler opts]
+  [handler {:keys [find-token-fn] :as opts}]
   (when (not (s/valid? ::alg-opts opts))
     (throw (ex-info "Invalid options." (s/explain-data ::alg-opts opts))))
 
   (fn [req]
     (try
-      (if-let [token (find-token req)]
+      (if-let [token ((or find-token-fn find-token*) req)]
         (->> (token/decode token opts)
              (assoc req :claims)
              (handler))
