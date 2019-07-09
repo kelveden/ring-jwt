@@ -10,9 +10,9 @@ Once wired into to your ring server, the middleware will:
 * Will add the claims it finds in the token as a clojure map against the `:claims` key on the incoming request.
 * Add an empty `:claims` map to the request if no token is found.
 * Respond with a `401` if the JWS signature in the token cannot be verified.
-* Respond with a `401` if the token has expired (i.e. the [exp]() claim indicates a time
+* Respond with a `401` if the token has expired (i.e. the [exp](https://tools.ietf.org/html/rfc7519#page-9) claim indicates a time
 in the past)
-* Respond with a `401` if the token will only be active in the future (i.e. the [nbf]() claim indicates
+* Respond with a `401` if the token will only be active in the future (i.e. the [nbf](https://tools.ietf.org/html/rfc7519#page-10) claim indicates
 a time in the future)
 
 Note that there is the option to specify a leeway for the `exp`/`nbf` checks - see usage below.
@@ -29,7 +29,7 @@ Note that there is the option to specify a leeway for the `exp`/`nbf` checks - s
 (defn handler [request]
   (response {:foo "bar"}))
 
-(jwt/wrap-jwt handler {:alg        :HS256
+(jwt/wrap-jwt handler {:alg    :HS256
                        :secret "yoursecret"})
 ```
 
