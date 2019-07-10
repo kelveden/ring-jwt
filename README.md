@@ -24,7 +24,7 @@ Note that there is the option to specify a leeway for the `exp`/`nbf` checks - s
 
 ## Usage
 ```clj
-(require '[ring.middleware.jwt :refer [wrap-jwt]])
+(require '[ring.middleware.jwt :as jwt])
 
 (defn handler [request]
   (response {:foo "bar"}))
