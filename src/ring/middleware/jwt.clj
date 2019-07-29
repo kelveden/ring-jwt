@@ -12,7 +12,7 @@
            (re-find #"(?i)^Bearer (.+)$")
            (last)))
 
-(s/def ::alg-opts (s/and (s/keys :req-in [::token/alg]
+(s/def ::alg-opts (s/and (s/keys :req-un [::token/alg]
                                  :opt-un [::token/leeway-seconds ::token/issuer])
                          (s/or :secret-opts ::token/secret-opts
                                :public-key-opts ::token/public-key-opts)))
