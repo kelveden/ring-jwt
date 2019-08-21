@@ -5,3 +5,5 @@ pom.xml
 *.class
 /.lein-*
 /.nrepl-port
+*.iml
+.idea
