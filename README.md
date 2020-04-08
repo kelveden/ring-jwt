@@ -19,7 +19,7 @@ Note that there is the option to specify a leeway for the `exp`/`nbf` checks - s
 
 ## Installation
 ```
-[ovotech/ring-jwt "1.2.4"]
+[ovotech/ring-jwt "1.2.5"]
 ```
 
 ## Usage
@@ -59,19 +59,6 @@ request map.
 
 If a `find-token-fn` function is not specified in the options the default behaviour is to look
 for the token as the bearer token given in the `Authorization` header (i.e. an `Authorization` HTTP header of the form "Bearer TOKEN")
-
-## Integrant/Duct integration
-The library also provides a simple [integrant](https://github.com/weavejester/integrant) `init-key` for the
-middleware that can also be used with [duct](https://github.com/duct-framework/duct). E.g.
-
-```clj
-{:ring.middleware.jwt/jwt
- {:alg    :HS256
-  :secret "somesecret"}}
-```
-
-> NOTE: neither integrant or duct are included as dependencies with this library so as to
-> avoid unnecessary transitive dependencies in your codebase.
 
 ## Useful links
 

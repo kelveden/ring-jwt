@@ -1,4 +1,4 @@
-(defproject ovotech/ring-jwt "1.2.4"
+(defproject ovotech/ring-jwt "1.2.5"
   :description "JWT middleware for Ring"
   :url "http://github.com/ovotech/ring-jwt"
   :license {:name "Eclipse Public License"
@@ -9,8 +9,8 @@
                  [com.auth0/java-jwt "3.8.2"]
                  [com.auth0/jwks-rsa "0.8.3"]
                  [fipp "0.6.18"]]
-  :profiles {:dev      {:dependencies [[org.clojure/test.check "0.10.0"]
-                                       [kelveden/clj-wiremock "1.3.0"]]
+  :profiles {:dev      {:dependencies [[org.clojure/test.check "1.0.0"]
+                                       [kelveden/clj-wiremock "1.5.2"]
+                                       [org.slf4j/slf4j-simple "1.7.30"]]
                         :eftest       {:multithread? false}
-                        :plugins      [[lein-eftest "0.4.3"]]}
-             :provided {:dependencies [[integrant "0.7.0"]]}})
+                        :plugins      [[lein-eftest "0.4.3"]]}})

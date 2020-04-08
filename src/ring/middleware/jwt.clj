@@ -1,7 +1,6 @@
 (ns ring.middleware.jwt
   (:require [clojure.spec.alpha :as s]
-            [ring.middleware.token :as token]
-            [integrant.core :as ig])
+            [ring.middleware.token :as token])
   (:import (com.auth0.jwt.exceptions SignatureVerificationException AlgorithmMismatchException JWTVerificationException TokenExpiredException)))
 
 (defn- find-token*
@@ -59,8 +58,3 @@
         :ret fn?
         :args (s/cat :handler fn?
                      :opts ::alg-opts))
-
-(defmethod ig/init-key :ring.middleware.jwt/jwt [_ opts]
-  (fn [handler]
-    (-> handler
-        (wrap-jwt opts))))
