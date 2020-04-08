@@ -60,6 +60,10 @@ request map.
 If a `find-token-fn` function is not specified in the options the default behaviour is to look
 for the token as the bearer token given in the `Authorization` header (i.e. an `Authorization` HTTP header of the form "Bearer TOKEN")
 
+## Other goodies
+
+Keys for use with [Integrant](https://github.com/weavejester/integrant) or [Duct](https://github.com/duct-framework/duct) are available in [ovotech/duct.middleware.ring-jwt](https://github.com/ovotech/duct.middleware.ring-jwt).
+
 ## Useful links
 
 * [JSON Web Tokens - JWT Specification](https://tools.ietf.org/html/rfc7519)
