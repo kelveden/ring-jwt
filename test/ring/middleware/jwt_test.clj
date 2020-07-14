@@ -215,3 +215,19 @@
     (wrap-jwt (dummy-handler) {:alg    :HS256
                                :secret "somesecret"
                                :bollox "whatever"})))
+
+(deftest namespaced-claims-are-not-keywordized
+  (let [{:keys [private-key public-key]} (util/generate-key-pair :RS256)
+        claims  {"http://some/private/claim" 1
+                 "another/namespaced-claim"  2
+                 "iss"                       issuer}
+        handler (wrap-jwt (dummy-handler) {:alg        :RS256
+                                           :issuer     issuer
+                                           :public-key public-key})
+        req     (build-request claims {:alg         :RS256
+                                       :private-key private-key})
+        res     (handler req)]
+    (is (= (-> claims
+               (assoc :iss issuer)
+               (dissoc "iss"))
+           (:claims res)))))

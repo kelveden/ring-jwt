@@ -1,6 +1,6 @@
 (ns ring.middleware.token
   (:require [cheshire.core :as json]
-            [clojure.walk :refer [keywordize-keys]]
+            [clojure.walk :refer [postwalk]]
             [ring.middleware.jwk :as jwk]
             [clojure.spec.alpha :as s])
   (:import (com.auth0.jwt.algorithms Algorithm)
@@ -10,13 +10,26 @@
            (org.apache.commons.codec.binary Base64)
            (java.security PublicKey)))
 
+(defn keywordize-non-namespaced-claims
+  "Walks through the claims keywordizing them unless the key is namespaced. This is detected
+  by virtue of checking for the presence of a '/' in the key name."
+  [m]
+  (let [namespaced?     #(clojure.string/includes? % "/")
+        keywordize-pair (fn [[k v]]
+                          [(if (and (string? k) (not (namespaced? k)))
+                             (keyword k) k)
+                           v])]
+    (postwalk #(cond-> % (map? %) (->> (map keywordize-pair)
+                                       (into {})))
+              m)))
+
 (defn- base64->map
   [base64-str]
   (-> base64-str
       (Base64/decodeBase64)
       (String. Charsets/UTF_8)
       (json/parse-string)
-      (keywordize-keys)))
+      (keywordize-non-namespaced-claims)))
 
 (defn- decode-token*
   [algorithm token {:keys [issuer leeway-seconds]}]
