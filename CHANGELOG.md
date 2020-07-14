@@ -3,6 +3,8 @@
 ## Changed
 
 - Don't keywordize keys in the claims that are namespaced. Resolves #11.
+- Bumped to latest dependencies.
+- Added this CHANGELOG.md
 
 # 1.2.5 (2020-04-08) c3c4256e3f361eca44f33ba37a13c2acf4695c27
 
