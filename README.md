@@ -1,4 +1,6 @@
 # ring-jwt
+[![Clojars Project](https://img.shields.io/clojars/v/ovotech/ring-jwt.svg)](https://clojars.org/ovotech/ring-jwt)
+
 [Ring](https://github.com/ring-clojure/ring) middleware for parsing, decoding and verifying
 a [JWS](https://tools.ietf.org/html/rfc7515)-signed [JWT](https://tools.ietf.org/html/rfc7519) token from the incoming request.
 
