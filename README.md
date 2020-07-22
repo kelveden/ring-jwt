@@ -21,7 +21,7 @@ Note that there is the option to specify a leeway for the `exp`/`nbf` checks - s
 
 ## Installation
 ```
-[ovotech/ring-jwt "1.2.5"]
+[ovotech/ring-jwt "1.3.0"]
 ```
 
 ## Usage
