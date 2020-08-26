@@ -19,11 +19,6 @@ a time in the future)
 
 Note that there is the option to specify a leeway for the `exp`/`nbf` checks - see usage below.
 
-## Installation
-```
-[ovotech/ring-jwt "1.3.0"]
-```
-
 ## Usage
 ```clj
 (require '[ring.middleware.jwt :as jwt])
