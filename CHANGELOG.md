@@ -1,4 +1,4 @@
-# 2.0.0 (2020-08-26)
+# 2.0.0 (2020-08-26) [f66df82](https://github.com/ovotech/ring-jwt/commit/f66df82b2d0bc6f9cfb579cc0c204725d0529963)
 
 > IMPORTANT: This is a major release with backward compatibility breaking changes.
 
