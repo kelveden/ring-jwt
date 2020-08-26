@@ -1,3 +1,21 @@
+# 2.0.0 (2020-08-26)
+
+> IMPORTANT: This is a major release with backward compatibility breaking changes.
+
+## Added
+
+- Support for multiple issuers (each with their own configuration) in a single piece of middleware. The middleware will pull the issuer `iss`
+from the incoming JWT and use it to lookup the appropriate algorithm from the middleware configuration to use for decoding.
+(Note that the `iss` claim is not "trusted" until signature verification has succeeded.) 
+
+## Changed
+To support multiple issuers, the format of configuration has changed so that there is a separate configuration per issuer.
+See the [README](./README.md#usage) for an example.
+
+## Removed
+- `issuer` optional algorithm field has been removed. (Issuer check is now implicit based on the lookup of issuer in the
+configuration.) 
+ 
 # 1.3.0 (2020-07-14) [3bb7178](https://github.com/ovotech/ring-jwt/commit/545698b98baaba20028462d03facf72d42896e47)
 
 ## Changed

@@ -31,16 +31,25 @@ Note that there is the option to specify a leeway for the `exp`/`nbf` checks - s
 (defn handler [request]
   (response {:foo "bar"}))
 
-(jwt/wrap-jwt handler {:alg    :HS256
-                       :secret "yoursecret"})
+(jwt/wrap-jwt handler {:issuers {"https://some/issuer"    {:alg    :HS256
+                                                           :secret "asecret"}
+                                 "https://another/issuer" {:alg           :RS256
+                                                           :jwks-endpoint "https://some/jwks/endpoint"}}})
 ```
 
-Depending upon the cryptographic algorithm that is selected for the middleware, a different
-map of options will be required. Note that, at the point your ring middleware is wired up, ring-jwt will
-throw an error if it detects that the given options are invalid. 
+Options: 
+* `:issuers` (mandatory): A map of issuer->cryptographic algorithm configuration. When receiving a JWT token, the middleware
+will pull the issuer from the `iss` claim and use it to lookup the appropriate algorithm in the middleware configuration to verify
+the JWT. (So, the `iss` claim is implicitly only "trusted" if verification succeeds.)   
+ * `:find-token-fn` (optional): A single-argument function that will be used to pull the (encoded) token from the request map. If unspecified
+the token will be sought from the bearer token given in the `Authorization` header (i.e. an `Authorization` HTTP header of the form "Bearer TOKEN")
+
+### Configuring the cryptographic algorithms
+Depending upon the cryptographic algorithm, a different map of options will be required. Note that, at the point your
+ring middleware is wired up, ring-jwt will throw an error if it detects that the given options are invalid. 
 
 Currently the following [JWA](https://tools.ietf.org/html/rfc7518#page-6) algorithms are
-supported for the purposes of JWS:
+supported for the purposes of [JWS](https://tools.ietf.org/html/rfc7515):
 
 | Algorithm                      | Options                                       |
 | ------------------------------ | --------------------------------------------- |
@@ -51,16 +60,10 @@ supported for the purposes of JWS:
 
 [1] `public-key` is of type `java.security.PublicKey`.
 
-Additionally, the following optional options are supported:
+Additionally, the following options are supported for all issuers:
 
 * `leeway-seconds`: The number of seconds leeway to give when verifying the expiry/active from claims
 of the token (i.e. the `exp` and `nbf` claims).
-* `issuer`: The issuer of the token, if this does not match the issuer on a token a `401` will be returned.
-* `find-token-fn`: The single-argument function that will be used to pull the (encoded) token from the
-request map.
-
-If a `find-token-fn` function is not specified in the options the default behaviour is to look
-for the token as the bearer token given in the `Authorization` header (i.e. an `Authorization` HTTP header of the form "Bearer TOKEN")
 
 ## Other goodies
 
