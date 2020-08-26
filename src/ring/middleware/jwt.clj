@@ -13,9 +13,14 @@
            (last)))
 
 (s/def ::alg-opts (s/and (s/keys :req-un [::token/alg]
-                                 :opt-un [::token/leeway-seconds ::token/issuer])
+                                 :opt-un [::token/leeway-seconds])
                          (s/or :secret-opts ::token/secret-opts
                                :public-key-opts ::token/public-key-opts)))
+(s/def ::issuers (s/map-of ::token/issuer ::alg-opts))
+(s/def ::find-token-fn fn?)
+
+(s/def ::opts (s/keys :req-un [::issuers]
+                      :opt-un [::find-token-fn]))
 
 (defn wrap-jwt
   "Middleware that decodes a JWT token, verifies against the signature and then
@@ -25,16 +30,19 @@
   a 401 response is produced.
 
   If the JWT token does not exist, an empty :claims map is added to the incoming request."
-  [handler {:keys [find-token-fn] :as opts}]
-  (when (not (s/valid? ::alg-opts opts))
-    (throw (ex-info "Invalid options." (s/explain-data ::alg-opts opts))))
+  [handler {:keys [find-token-fn issuers] :as opts}]
+  (when-not (s/valid? ::opts opts)
+    (throw (ex-info "Invalid options." (s/explain-data ::opts opts))))
 
   (fn [req]
     (try
       (if-let [token ((or find-token-fn find-token*) req)]
-        (->> (token/decode token opts)
-             (assoc req :claims)
-             (handler))
+        (if-let [alg-opts (->> token token/decode-issuer (get issuers))]
+          (->> (token/decode token alg-opts)
+               (assoc req :claims)
+               (handler))
+          {:status 401
+           :body   "Unknown issuer."})
         (->> (assoc req :claims {})
              (handler)))
 
@@ -57,4 +65,4 @@
 (s/fdef wrap-jwt
         :ret fn?
         :args (s/cat :handler fn?
-                     :opts ::alg-opts))
+                     :opts ::opts))
