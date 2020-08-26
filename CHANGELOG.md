@@ -9,7 +9,7 @@ from the incoming JWT and use it to lookup the appropriate algorithm from the mi
 (Note that the `iss` claim is not "trusted" until signature verification has succeeded.) 
 
 ## Changed
-To support multiple issuers, the format of configuration has changed so that there is a separate configuration per issuer.
+- To support multiple issuers, the format of configuration has changed so that there is a separate configuration per issuer.
 See the [README](./README.md#usage) for an example.
 
 ## Removed
