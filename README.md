@@ -28,8 +28,8 @@ Note that there is the option to specify a leeway for the `exp`/`nbf` checks - s
 
 (jwt/wrap-jwt handler {:issuers {"https://some/issuer"    {:alg    :HS256
                                                            :secret "asecret"}
-                                 "https://another/issuer" {:alg           :RS256
-                                                           :jwks-endpoint "https://some/jwks/endpoint"}}})
+                                 "https://another/issuer" {:alg          :RS256
+                                                           :jwk-endpoint "https://some/jwks/endpoint"}}})
 ```
 
 Options: 
