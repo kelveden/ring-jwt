@@ -20,8 +20,6 @@ in the past).
 a time in the future)
   - As for `exp`, the `leeway-seconds` setting can be used to introduce a leeway on this check.
 
-Note that there is the option to specify a leeway for the `exp`/`nbf` checks - see usage below.
-
 ## Usage
 ```clj
 (require '[ring.middleware.jwt :as jwt])
