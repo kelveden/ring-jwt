@@ -8,7 +8,7 @@ Built on top of the excellent [auth0](https://github.com/auth0/java-jwt) JWT lib
 
 Once wired into to your ring server, the middleware will:
 
-* Search for a JWT token on each incoming request (see below for information on where it looks).
+* Search for a JWT token on each incoming request. By default, it will parse the bearer token from the `Authorization` HTTP header but this behaviour can be overridden (see usage below).
 * Will add the claims it finds in the token as a clojure map against the `:claims` key on the incoming request.
 * Add an empty `:claims` map to the request if no token is found.
 * Respond with a `401` if the JWS signature in the token cannot be verified.
