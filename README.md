@@ -8,12 +8,14 @@ Built on top of the excellent [auth0](https://github.com/auth0/java-jwt) JWT lib
 
 Once wired into to your ring server, the middleware will:
 
-* Search for a JWT token on each incoming request. By default, it will parse the bearer token from the `Authorization` HTTP header but this behaviour can be overridden using the `find-token-fn` setting (see usage below).
+* Search for a JWT token on each incoming request.
+  - By default, it will parse the bearer token from the `Authorization` HTTP header but this behaviour can be overridden using the `find-token-fn` setting (see usage below).
 * Will add the claims it finds in the token as a clojure map against the `:claims` key on the incoming request.
 * Add an empty `:claims` map to the request if no token is found.
 * Respond with a `401` if the JWS signature in the token cannot be verified.
 * Respond with a `401` if the token has expired (i.e. the [exp](https://tools.ietf.org/html/rfc7519#page-9) claim indicates a time
-in the past). A leeway can be specified for this check with the `leeway-seconds` setting (see usage below).
+in the past).
+  - A leeway can be specified for this check with the `leeway-seconds` setting (see usage below).
 * Respond with a `401` if the token will only be active in the future (i.e. the [nbf](https://tools.ietf.org/html/rfc7519#page-10) claim indicates
 a time in the future)
 
