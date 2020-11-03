@@ -18,6 +18,7 @@ in the past).
   - A leeway can be specified for this check with the `leeway-seconds` setting (see usage below).
 * Respond with a `401` if the token will only be active in the future (i.e. the [nbf](https://tools.ietf.org/html/rfc7519#page-10) claim indicates
 a time in the future)
+  - As for `exp`, the `leeway-seconds` setting can be used to introduce a leeway on this check.
 
 Note that there is the option to specify a leeway for the `exp`/`nbf` checks - see usage below.
 
