@@ -3,15 +3,16 @@
             [ring.middleware.token :as token])
   (:import (com.auth0.jwt.exceptions SignatureVerificationException AlgorithmMismatchException JWTVerificationException TokenExpiredException)))
 
-(defn find-token
-  "Finds the token by searching the Authorization HTTP header on the incoming request for a bearer token."
-  [{:keys [headers]}]
-  (some->> headers
-           (filter #(.equalsIgnoreCase "authorization" (key %)))
-           (first)
-           (val)
-           (re-find #"(?i)^Bearer (.+)$")
-           (last)))
+(defn read-token-from-header
+  "Finds the token by searching the specified HTTP header (case-insensitive) for a bearer token."
+  [header-name]
+  (fn [{:keys [headers]}]
+    (some->> headers
+             (filter #(.equalsIgnoreCase header-name (key %)))
+             (first)
+             (val)
+             (re-find #"(?i)^Bearer (.+)$")
+             (last))))
 
 (s/def ::alg-opts (s/and (s/keys :req-un [::token/alg]
                                  :opt-un [::token/leeway-seconds])
@@ -37,7 +38,7 @@
 
   (fn [req]
     (try
-      (if-let [token ((or find-token-fn find-token) req)]
+      (if-let [token ((or find-token-fn (read-token-from-header "Authorization")) req)]
         (if-let [alg-opts (->> token token/decode-issuer (get issuers))]
           (->> (token/decode token alg-opts)
                (assoc req :claims)
