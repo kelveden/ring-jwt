@@ -1,3 +1,8 @@
+# 2.1.0 (2020-12-14) [195b33a](https://github.com/ovotech/ring-jwt/commit/195b33a5f7c550c68fb17e6d10b167bd4c3b1301)
+
+## Added
+- Support for new `reject-missing-token?` flag.
+
 # 2.0.0 (2020-08-26) [f66df82](https://github.com/ovotech/ring-jwt/commit/f66df82b2d0bc6f9cfb579cc0c204725d0529963)
 
 > IMPORTANT: This is a major release with backward compatibility breaking changes.
