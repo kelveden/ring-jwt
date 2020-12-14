@@ -82,6 +82,6 @@ Keys for use with [Integrant](https://github.com/weavejester/integrant) or [Duct
 * [jwt.io](https://jwt.io/)
 
 ## License
-Copyright © 2018 Ovo Energy Ltd.
+Copyright © 2020 Ovo Energy Ltd.
 
 Distributed under the Eclipse Public License, the same as Clojure.
