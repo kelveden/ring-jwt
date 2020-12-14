@@ -20,9 +20,10 @@
                                :public-key-opts ::token/public-key-opts)))
 (s/def ::issuers (s/map-of ::token/issuer ::alg-opts))
 (s/def ::find-token-fn fn?)
+(s/def ::reject-missing-token? boolean?)
 
 (s/def ::opts (s/keys :req-un [::issuers]
-                      :opt-un [::find-token-fn]))
+                      :opt-un [::find-token-fn ::reject-missing-token?]))
 
 (defn wrap-jwt
   "Middleware that decodes a JWT token, verifies against the signature and then
@@ -32,7 +33,9 @@
   a 401 response is produced.
 
   If the JWT token does not exist, an empty :claims map is added to the incoming request."
-  [handler {:keys [find-token-fn issuers] :as opts}]
+  [handler {:keys [find-token-fn issuers reject-missing-token?]
+            :or   {reject-missing-token? false}
+            :as   opts}]
   (when-not (s/valid? ::opts opts)
     (throw (ex-info "Invalid options." (s/explain-data ::opts opts))))
 
@@ -45,8 +48,12 @@
                (handler))
           {:status 401
            :body   "Unknown issuer."})
-        (->> (assoc req :claims {})
-             (handler)))
+
+        (if reject-missing-token?
+          {:status 401
+           :body   "No token found."}
+          (->> (assoc req :claims {})
+               (handler))))
 
       (catch SignatureVerificationException _
         {:status 401

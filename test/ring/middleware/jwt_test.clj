@@ -281,3 +281,35 @@
         {:keys [status body]} (handler req)]
     (is (= 401 status))
     (is (= "Unknown issuer." body))))
+
+(deftest missing-token-is-ignored-by-default
+  (let [{:keys [public-key]} (util/generate-key-pair :RS256)
+        issuer  (str (UUID/randomUUID))
+        handler (wrap-jwt (fn [_] {:status 200})
+                          {:issuers {issuer {:alg        :RS256
+                                             :public-key public-key}}})
+        req     {}
+        {:keys [status]} (handler req)]
+    (is (= 200 status))))
+
+(deftest missing-token-is-ignored-when-configured-not-to-reject-missing-tokens
+  (let [{:keys [public-key]} (util/generate-key-pair :RS256)
+        issuer  (str (UUID/randomUUID))
+        handler (wrap-jwt (fn [_] {:status 200})
+                          {:issuers               {issuer {:alg        :RS256
+                                                           :public-key public-key}}
+                           :reject-missing-token? false})
+        req     {}
+        {:keys [status]} (handler req)]
+    (is (= 200 status))))
+
+(deftest missing-token-causes-401-if-configured-to-reject-missing-tokens
+  (let [{:keys [public-key]} (util/generate-key-pair :RS256)
+        issuer  (str (UUID/randomUUID))
+        handler (wrap-jwt (fn [_] {:status 200})
+                          {:issuers               {issuer {:alg        :RS256
+                                                           :public-key public-key}}
+                           :reject-missing-token? true})
+        req     {}
+        {:keys [status]} (handler req)]
+    (is (= 401 status))))

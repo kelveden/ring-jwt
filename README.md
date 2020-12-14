@@ -20,6 +20,10 @@ in the past).
 a time in the future)
   - As for `exp`, the `leeway-seconds` setting can be used to introduce a leeway on this check.
 
+> **IMPORTANT**: by default a missing token will simply cause authentication to be skipped - to override this behaviour set the `reject-missing-token?` setting (see below).
+> This to allow for the common scenario where authentication is only required on a subset of endpoints (e.g. to skip authentication on a healthcheck endpoint). It is
+> therefore expected that any token would then be used for authorization: and a missing token would cause this authorization to fail.
+
 ## Usage
 ```clj
 (require '[ring.middleware.jwt :as jwt])
@@ -33,12 +37,15 @@ a time in the future)
                                                            :jwk-endpoint "https://some/jwks/endpoint"}}})
 ```
 
-Options: 
+Options:
+
 * `:issuers` (mandatory): A map of issuer->cryptographic algorithm configuration. When receiving a JWT token, the middleware
 will pull the issuer from the `iss` claim and use it to lookup the appropriate algorithm in the middleware configuration to verify
 the JWT. (So, the `iss` claim is implicitly only "trusted" if verification succeeds.)   
- * `:find-token-fn` (optional): A single-argument function that will be used to pull the (encoded) token from the request map. If unspecified
+* `:find-token-fn` (optional): A single-argument function that will be used to pull the (encoded) token from the request map. If unspecified
 the token will be sought from the bearer token given in the `Authorization` header (i.e. an `Authorization` HTTP header of the form "Bearer TOKEN")
+* `:reject-missing-token?` (optional): A flag indicating whether a request missing a JWT token will be rejected with a `401` response. Default is `false` -
+i.e. by default a missing token will simply cause authentication to be skipped.
 
 ### Configuring the cryptographic algorithms
 Depending upon the cryptographic algorithm, a different map of options will be required. Note that, at the point your
