@@ -7,3 +7,4 @@ pom.xml
 /.nrepl-port
 *.iml
 .idea
+pom.xml.asc
