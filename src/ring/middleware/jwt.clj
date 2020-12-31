@@ -55,21 +55,9 @@
           (->> (assoc req :claims {})
                (handler))))
 
-      (catch SignatureVerificationException _
+      (catch JWTVerificationException e
         {:status 401
-         :body   "Signature could not be verified."})
-
-      (catch AlgorithmMismatchException _
-        {:status 401
-         :body   "Signature could not be verified."})
-
-      (catch TokenExpiredException _
-        {:status 401
-         :body   "Token has expired."})
-
-      (catch JWTVerificationException _
-        {:status 401
-         :body   "One or more claims were invalid."}))))
+         :body   (ex-message e)}))))
 
 (s/fdef wrap-jwt
         :ret fn?

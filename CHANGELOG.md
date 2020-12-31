@@ -1,3 +1,9 @@
+# 2.2.0 (2020-12-31)
+
+## Changed
+- The error messages from the bubbled Auth0 `JWTVerificationException`s are used as the response body for `401` responses
+  rather than being replaced by a generic message. In doing so, this will allow easier diagnosis of authentication problems.
+
 # 2.1.0 (2020-12-14) [195b33a](https://github.com/ovotech/ring-jwt/commit/195b33a5f7c550c68fb17e6d10b167bd4c3b1301)
 
 ## Added

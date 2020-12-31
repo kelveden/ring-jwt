@@ -6,7 +6,8 @@
             [ring.middleware.jwt :refer [wrap-jwt]])
   (:import (clojure.lang ExceptionInfo)
            (java.time Instant)
-           (java.util Date UUID)))
+           (java.util Date UUID)
+           (com.auth0.jwt.exceptions AlgorithmMismatchException)))
 
 (def ^:private dummy-handler (constantly identity))
 
@@ -56,7 +57,7 @@
                                        :private-key private-key})
         {:keys [body status]} (handler req)]
     (is (= 401 status))
-    (is (= "Signature could not be verified." body))))
+    (is (= "The provided Algorithm doesn't match the one defined in the JWT's Header." body))))
 
 (deftest jwt-token-signed-with-wrong-issuer-causes-401
   (let [{:keys [private-key]} (util/generate-key-pair :RS256)
@@ -69,7 +70,7 @@
                                        :private-key private-key})
         {:keys [body status]} (handler req)]
     (is (= 401 status))
-    (is (= "Signature could not be verified." body))))
+    (is (= "The provided Algorithm doesn't match the one defined in the JWT's Header." body))))
 
 (deftest jwt-token-with-tampered-header-causes-401
   (let [{:keys [private-key public-key]} (util/generate-key-pair :RS256)
@@ -86,7 +87,7 @@
         req             {:headers {"Authorization" (str "Bearer " tampered-token)}}
         {:keys [body status]} (handler req)]
     (is (= 401 status))
-    (is (= "Signature could not be verified." body))))
+    (is (= "The Token's Signature resulted invalid when verified using the Algorithm: SHA256withRSA" body))))
 
 (deftest jwt-token-with-tampered-payload-causes-401
   (let [{:keys [private-key public-key]} (util/generate-key-pair :RS256)
@@ -104,7 +105,7 @@
         req              {:headers {"Authorization" (str "Bearer " tampered-token)}}
         {:keys [body status]} (handler req)]
     (is (= 401 status))
-    (is (= "Signature could not be verified." body))))
+    (is (= "The Token's Signature resulted invalid when verified using the Algorithm: SHA256withRSA" body))))
 
 (deftest no-jwt-token-causes-empty-claims-map-added-to-request
   (let [issuer  (str (UUID/randomUUID))
@@ -128,7 +129,7 @@
                                        :private-key private-key})
         {:keys [body status]} (handler req)]
     (is (= 401 status))
-    (is (= "Token has expired." body))))
+    (is (clojure.string/starts-with? body "The Token has expired on"))))
 
 (deftest future-active-jwt-token-causes-401
   (let [{:keys [private-key public-key]} (util/generate-key-pair :RS256)
@@ -143,7 +144,7 @@
                                        :private-key private-key})
         {:keys [body status]} (handler req)]
     (is (= 401 status))
-    (is (= "One or more claims were invalid." body))))
+    (is (clojure.string/starts-with? body "The Token can't be used before"))))
 
 (defn- date->seconds [date]
   (/ (.getTime date) 1000))
