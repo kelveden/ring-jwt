@@ -6,7 +6,7 @@ a [JWS](https://tools.ietf.org/html/rfc7515)-signed [JWT](https://tools.ietf.org
 
 Built on top of the excellent [auth0](https://github.com/auth0/java-jwt) JWT library.
 
-Once wired into to your ring server, the middleware will:
+Once wired into your ring server, the middleware will:
 
 * Search for a JWT token on each incoming request.
   - By default, it will parse the bearer token from the `Authorization` HTTP header but this behaviour can be overridden using the `find-token-fn` setting (see usage below).
@@ -82,6 +82,6 @@ Keys for use with [Integrant](https://github.com/weavejester/integrant) or [Duct
 * [jwt.io](https://jwt.io/)
 
 ## License
-Copyright © 2020 Ovo Energy Ltd.
+Copyright © 2021 Ovo Energy Ltd.
 
 Distributed under the Eclipse Public License, the same as Clojure.
