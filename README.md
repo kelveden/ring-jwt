@@ -4,6 +4,8 @@
 [Ring](https://github.com/ring-clojure/ring) middleware for parsing, decoding and verifying
 a [JWS](https://tools.ietf.org/html/rfc7515)-signed [JWT](https://tools.ietf.org/html/rfc7519) token from the incoming request.
 
+> NOTE: There is no explicit support for [JWE](https://tools.ietf.org/html/rfc7516) currently.
+
 Built on top of the excellent [auth0](https://github.com/auth0/java-jwt) JWT library.
 
 Once wired into your ring server, the middleware will:
