@@ -42,7 +42,7 @@
   (fn [req]
     (try
       (if-let [token ((or find-token-fn (read-token-from-header "Authorization")) req)]
-        (if-let [alg-opts (->> token token/decode-issuer (get issuers))]
+        (if-let [alg-opts (get issuers (or (token/decode-issuer token) :no-issuer))]
           (->> (token/decode token alg-opts)
                (assoc req :claims)
                (handler))

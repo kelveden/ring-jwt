@@ -36,14 +36,18 @@ a time in the future)
 (jwt/wrap-jwt handler {:issuers {"https://some/issuer"    {:alg    :HS256
                                                            :secret "asecret"}
                                  "https://another/issuer" {:alg          :RS256
-                                                           :jwk-endpoint "https://some/jwks/endpoint"}}})
+                                                           :jwk-endpoint "https://some/jwks/endpoint"}
+                                 :no-issuer               {:alg    :HS256
+                                                           :secret "anothersecret"}}})
 ```
 
 Options:
 
 * `:issuers` (mandatory): A map of issuer->cryptographic algorithm configuration. When receiving a JWT token, the middleware
 will pull the issuer from the `iss` claim and use it to lookup the appropriate algorithm in the middleware configuration to verify
-the JWT. (So, the `iss` claim is implicitly only "trusted" if verification succeeds.)   
+the JWT. (So, the `iss` claim is implicitly only "trusted" if verification succeeds.)
+  - Optionally, you may include a `:no-issuer` key in the map of issuers - this value will be used if no `iss` claim is found
+  in the incoming token.
 * `:find-token-fn` (optional): A single-argument function that will be used to pull the (encoded) token from the request map. If unspecified
 the token will be sought from the bearer token given in the `Authorization` header (i.e. an `Authorization` HTTP header of the form "Bearer TOKEN")
 * `:reject-missing-token?` (optional): A flag indicating whether a request missing a JWT token will be rejected with a `401` response. Default is `false` -

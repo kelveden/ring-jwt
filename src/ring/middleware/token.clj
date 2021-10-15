@@ -14,7 +14,7 @@
   "Walks through the claims keywordizing them unless the key is namespaced. This is detected
   by virtue of checking for the presence of a '/' in the key name."
   [m]
-  (let [namespaced?     #(clojure.string/includes? % "/")
+  (let [namespaced? #(clojure.string/includes? % "/")
         keywordize-pair (fn [[k v]]
                           [(if (and (string? k) (not (namespaced? k)))
                              (keyword k) k)
@@ -46,7 +46,8 @@
   (-> token JWT/decode (.getIssuer)))
 
 (s/def ::alg #{:RS256 :HS256 :ES256})
-(s/def ::issuer (s/and string? (complement clojure.string/blank?)))
+(s/def ::issuer (s/or :string (s/and string? (complement clojure.string/blank?))
+                      :keyword #{:no-issuer}))
 (s/def ::leeway-seconds nat-int?)
 
 (s/def ::secret (s/and string? (complement clojure.string/blank?)))
