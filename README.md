@@ -1,5 +1,5 @@
 # ring-jwt
-[![Clojars Project](https://img.shields.io/clojars/v/ovotech/ring-jwt.svg)](https://clojars.org/ovotech/ring-jwt)
+[![Clojars Project](https://img.shields.io/clojars/v/kelveden/ring-jwt.svg)](https://clojars.org/kelveden/ring-jwt)
 
 [Ring](https://github.com/ring-clojure/ring) middleware for parsing, decoding and verifying
 a [JWS](https://tools.ietf.org/html/rfc7515)-signed [JWT](https://tools.ietf.org/html/rfc7519) token from the incoming request.
@@ -77,7 +77,7 @@ of the token (i.e. the `exp` and `nbf` claims).
 
 ## Other goodies
 
-Keys for use with [Integrant](https://github.com/weavejester/integrant) or [Duct](https://github.com/duct-framework/duct) are available in [ovotech/duct.middleware.ring-jwt](https://github.com/ovotech/duct.middleware.ring-jwt).
+Keys for use with [Integrant](https://github.com/weavejester/integrant) or [Duct](https://github.com/duct-framework/duct) are available in [kelveden/duct.middleware.ring-jwt](https://github.com/kelveden/duct.middleware.ring-jwt).
 
 ## Useful links
 

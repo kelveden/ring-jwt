@@ -1,6 +1,6 @@
-(defproject ovotech/ring-jwt "2.3.0"
+(defproject net.clojars.kelveden/ring-jwt "2.3.0"
   :description "JWT middleware for Ring"
-  :url "http://github.com/ovotech/ring-jwt"
+  :url "http://github.com/kelveden/ring-jwt"
   :license {:name "Eclipse Public License"
             :url  "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[cheshire "5.10.0"]
