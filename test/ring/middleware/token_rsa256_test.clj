@@ -35,7 +35,7 @@
         jwk-endpoint  (format "http://localhost:%s/my/jwk" wiremock-port)]
 
     (wmk/with-wiremock
-      {:port wiremock-port}
+      [{:port wiremock-port}]
       (wmk/with-stubs
         [{:req [:GET "/my/jwk"] :res [200 {:body (util/generate-jwk-response key-id public-key)}]}]
 
