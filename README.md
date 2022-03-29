@@ -25,10 +25,6 @@ in the past).
 a time in the future)
   - As for `exp`, the `leeway-seconds` setting can be used to introduce a leeway on this check.
 
-> **IMPORTANT**: by default a missing token will simply cause authentication to be skipped - to override this behaviour set the `reject-missing-token?` setting (see below).
-> This to allow for the common scenario where authentication is only required on a subset of endpoints (e.g. to skip authentication on a healthcheck endpoint). It is
-> therefore expected that any token would then be used for authorization: and a missing token would cause this authorization to fail.
-
 ## Usage
 ```clj
 (require '[ring.middleware.jwt :as jwt])
@@ -54,8 +50,7 @@ the JWT. (So, the `iss` claim is implicitly only "trusted" if verification succe
 * `:find-token-fn` (optional): A single-argument function that will be used to pull the (encoded) token from the request map. If unspecified
 the token will be sought from the bearer token given in the `Authorization` header (i.e. an `Authorization` HTTP header of the form "Bearer TOKEN")
 * `:reject-missing-token?` (optional): A flag indicating whether a request missing a JWT token will be rejected with a `401` response. Default is `true`.
-If set to `false` a missing token will simply cause _authentication_ to be skipped - although any _authorization_ in your
-app will presumably fail as a result of no claims being found.
+If set to `false` a missing token will cause _authentication_ to be skipped - and so you should ensure that your endpoints check for the presence of a token on the request (whether explicily or implicitly as part of an authorization step).
 
 ### Configuring the cryptographic algorithms
 Depending upon the cryptographic algorithm, a different map of options will be required. Note that, at the point your
