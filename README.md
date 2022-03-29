@@ -50,7 +50,7 @@ the JWT. (So, the `iss` claim is implicitly only "trusted" if verification succe
 * `:find-token-fn` (optional): A single-argument function that will be used to pull the (encoded) token from the request map. If unspecified
 the token will be sought from the bearer token given in the `Authorization` header (i.e. an `Authorization` HTTP header of the form "Bearer TOKEN")
 * `:reject-missing-token?` (optional): A flag indicating whether a request missing a JWT token will be rejected with a `401` response. Default is `true`.
-If set to `false` a missing token will cause _authentication_ to be skipped - and so you should ensure that your endpoints check for the presence of a token on the request (whether explicily or implicitly as part of an authorization step).
+If set to `false` a missing token will cause _authentication to be skipped_ - and so it is then the responsibility of your service code to determine whether incoming requests missing a token should be rejected or not.
 
 ### Configuring the cryptographic algorithms
 Depending upon the cryptographic algorithm, a different map of options will be required. Note that, at the point your
