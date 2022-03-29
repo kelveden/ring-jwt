@@ -7,7 +7,7 @@ a [JWS](https://tools.ietf.org/html/rfc7515)-signed [JWT](https://tools.ietf.org
 
 Built on top of the excellent [auth0](https://github.com/auth0/java-jwt) JWT library.
 
-> **IMPORTANT**: For those upgrading from versions older than `2.4.0`: This version introduced a potentially breaking
+> **Upgrading to 2.4.0 and above**: For those upgrading from versions older than `2.4.0`: This version introduced a potentially breaking
 > change to the `reject-missing-token?` flag. Instead of defaulting to `false` it now defaults to `true`. So, if you are
 > not already explicitly setting the field in your configuration, you will need to add an explicit `:reject-missing-token? false`.
 
