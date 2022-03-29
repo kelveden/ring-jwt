@@ -1,5 +1,5 @@
 # ring-jwt
-[![Clojars Project](https://clojars.org/net.clojars.kelveden/ring-jwt/latest-version.svg](https://clojars.org/net.clojars.kelveden/ring-jwt)
+[![https://clojars.org/net.clojars.kelveden/ring-jwt/latest-version.svg](https://clojars.org/net.clojars.kelveden/ring-jwt)
 
 [Ring](https://github.com/ring-clojure/ring) middleware for parsing, decoding and verifying
 a [JWS](https://tools.ietf.org/html/rfc7515)-signed [JWT](https://tools.ietf.org/html/rfc7519) token from the incoming request.
