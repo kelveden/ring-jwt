@@ -3,10 +3,13 @@
 
 [Ring](https://github.com/ring-clojure/ring) middleware for parsing, decoding and verifying
 a [JWS](https://tools.ietf.org/html/rfc7515)-signed [JWT](https://tools.ietf.org/html/rfc7519) token from the incoming request.
-
-> NOTE: There is no explicit support for [JWE](https://tools.ietf.org/html/rfc7516) currently.
+(There is no explicit support for [JWE](https://tools.ietf.org/html/rfc7516) currently.)
 
 Built on top of the excellent [auth0](https://github.com/auth0/java-jwt) JWT library.
+
+> **IMPORTANT**: For those upgrading from versions older than `2.4.0`: This version introduced a potentially breaking
+> change to the `reject-missing-token?` flag. Instead of defaulting to `false` it now defaults to `true`. So, if you are
+> not already explicitly setting the field in your configuration, you will need to add an explicit `:reject-missing-token? false`.
 
 Once wired into your ring server, the middleware will:
 
@@ -50,8 +53,9 @@ the JWT. (So, the `iss` claim is implicitly only "trusted" if verification succe
   in the incoming token.
 * `:find-token-fn` (optional): A single-argument function that will be used to pull the (encoded) token from the request map. If unspecified
 the token will be sought from the bearer token given in the `Authorization` header (i.e. an `Authorization` HTTP header of the form "Bearer TOKEN")
-* `:reject-missing-token?` (optional): A flag indicating whether a request missing a JWT token will be rejected with a `401` response. Default is `false` -
-i.e. by default a missing token will simply cause authentication to be skipped.
+* `:reject-missing-token?` (optional): A flag indicating whether a request missing a JWT token will be rejected with a `401` response. Default is `true`.
+If set to `false` a missing token will simply cause _authentication_ to be skipped - although any _authorization_ in your
+app will presumably fail as a result of no claims being found.
 
 ### Configuring the cryptographic algorithms
 Depending upon the cryptographic algorithm, a different map of options will be required. Note that, at the point your

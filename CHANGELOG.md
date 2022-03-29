@@ -1,3 +1,10 @@
+# 2.4.0 (2022-03-29)
+
+> IMPORTANT: This is a major release with backward compatibility breaking changes.
+
+## Changed
+- The `reject-missing-token?` configuration flag is now `true` by default.
+
 # 2.2.0 (2020-12-31)
 
 ## Changed

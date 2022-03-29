@@ -106,15 +106,6 @@
     (is (= 401 status))
     (is (= "The Token's Signature resulted invalid when verified using the Algorithm: SHA256withRSA" body))))
 
-(deftest no-jwt-token-causes-empty-claims-map-added-to-request
-  (let [issuer (str (UUID/randomUUID))
-        handler (wrap-jwt (dummy-handler) {:issuers {issuer {:alg    :HS256
-                                                             :secret "whatever"}}})
-        req {:some "data"}
-        res (handler req)]
-    (is (= req (dissoc res :claims)))
-    (is (= {} (:claims res)))))
-
 (deftest expired-jwt-token-causes-401
   (let [{:keys [private-key public-key]} (util/generate-key-pair :RS256)
         issuer (str (UUID/randomUUID))
@@ -282,7 +273,7 @@
     (is (= 401 status))
     (is (= "Unknown issuer." body))))
 
-(deftest missing-token-is-ignored-by-default
+(deftest missing-token-causes-401-by-default
   (let [{:keys [public-key]} (util/generate-key-pair :RS256)
         issuer (str (UUID/randomUUID))
         handler (wrap-jwt (fn [_] {:status 200})
@@ -290,7 +281,7 @@
                                              :public-key public-key}}})
         req {}
         {:keys [status]} (handler req)]
-    (is (= 200 status))))
+    (is (= 401 status))))
 
 (deftest missing-token-is-ignored-when-configured-not-to-reject-missing-tokens
   (let [{:keys [public-key]} (util/generate-key-pair :RS256)

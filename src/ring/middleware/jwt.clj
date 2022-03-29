@@ -34,7 +34,7 @@
 
   If the JWT token does not exist, an empty :claims map is added to the incoming request."
   [handler {:keys [find-token-fn issuers reject-missing-token?]
-            :or   {reject-missing-token? false}
+            :or   {reject-missing-token? true}
             :as   opts}]
   (when-not (s/valid? ::opts opts)
     (throw (ex-info "Invalid options." (s/explain-data ::opts opts))))
