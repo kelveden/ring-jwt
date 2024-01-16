@@ -120,7 +120,7 @@
   This should be returned by your JWK endpoint in tests"
   [key-id public-key]
   (let [base64-encode-big-endian #(-> (.toByteArray %)
-                                      (Base64/encodeBase64)
+                                      (Base64/encodeBase64URLSafe)
                                       (String. StandardCharsets/UTF_8))]
     (json/generate-string
       {:keys [{:kid key-id

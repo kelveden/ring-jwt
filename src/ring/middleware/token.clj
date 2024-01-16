@@ -6,6 +6,8 @@
   (:import (com.auth0.jwt.algorithms Algorithm)
            (com.auth0.jwt JWT)
            (com.auth0.jwt.exceptions JWTDecodeException)
+           (com.auth0.jwt.interfaces RSAKeyProvider)
+           (java.security.interfaces ECPublicKey RSAPublicKey)
            (org.apache.commons.codec Charsets)
            (org.apache.commons.codec.binary Base64)
            (java.security PublicKey)))
@@ -37,7 +39,7 @@
       (JWT/require)
       (.acceptLeeway (or leeway-seconds 0))
       (.build)
-      (.verify token)
+      (.verify ^String token)
       (.getPayload)
       (base64->map)))
 
@@ -73,7 +75,7 @@
 
   (let [[public-key-type _] (s/conform ::public-key-opts opts)]
     (assert (= :key public-key-type))
-    (-> (Algorithm/ECDSA256 public-key)
+    (-> (Algorithm/ECDSA256 ^ECPublicKey public-key)
         (decode-token* token opts))))
 
 (defmethod decode :RS256
@@ -81,13 +83,13 @@
   {:pre [(s/valid? ::public-key-opts opts)]}
 
   (let [[public-key-type _] (s/conform ::public-key-opts opts)]
-    (-> (Algorithm/RSA256 (case public-key-type
-                            :url (jwk/rsa-key-provider jwk-endpoint)
-                            :key public-key))
+    (-> (case public-key-type
+          :url (Algorithm/RSA256 ^RSAKeyProvider (jwk/rsa-key-provider jwk-endpoint))
+          :key (Algorithm/RSA256 ^RSAPublicKey public-key))
         (decode-token* token opts))))
 
 (defmethod decode :HS256
   [token {:keys [secret] :as opts}]
   {:pre [(s/valid? ::secret-opts opts)]}
-  (-> (Algorithm/HMAC256 secret)
+  (-> (Algorithm/HMAC256 ^String secret)
       (decode-token* token opts)))

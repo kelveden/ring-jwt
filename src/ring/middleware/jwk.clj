@@ -1,7 +1,7 @@
 (ns ring.middleware.jwk
   (:import (java.net URL)
            (com.auth0.jwk GuavaCachedJwkProvider UrlJwkProvider)
-           (com.auth0.jwt.interfaces RSAKeyProvider ECDSAKeyProvider)))
+           (com.auth0.jwt.interfaces RSAKeyProvider)))
 
 (defn- new-jwk-provider
   [url]
