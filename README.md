@@ -51,6 +51,8 @@ the JWT. (So, the `iss` claim is implicitly only "trusted" if verification succe
 the token will be sought from the bearer token given in the `Authorization` header (i.e. an `Authorization` HTTP header of the form "Bearer TOKEN")
 * `:reject-missing-token?` (optional): A flag indicating whether a request missing a JWT token will be rejected with a `401` response. Default is `true`.
 If set to `false` a missing token will cause _authentication to be skipped_ - and so it is then the responsibility of your service code to determine whether incoming requests missing a token should be rejected or not.
+* `:ignore-paths` (optional): set of paths for which the JWT middleware should be ignored. For requests including a `:uri` that matches one
+  of the configured paths, the JWT middleware will be skipped.
 
 ### Configuring the cryptographic algorithms
 Depending upon the cryptographic algorithm, a different map of options will be required. Note that, at the point your
@@ -73,16 +75,6 @@ Additionally, the following options are supported for all issuers:
 
 * `leeway-seconds`: The number of seconds leeway to give when verifying the expiry/active from claims
 of the token (i.e. the `exp` and `nbf` claims).
-
-### Skipping auth for certain requests
-There may be occasions where you wish to bypass the auth layer provided by the `ring-jwt` middleware. To this end, the middleware
-recognises the following property in an incoming `req` map:
-
-* `:ring-jwt/skip-auth?` - if set to `true`, the `ring-jwt` middleware will effectively be skipped for this request - i.e. 
-  the incoming request will just be passed on to the next ring handler in the chain.
-
-Actually adding the value to the `req` map is left up to you but one way would be via ring middleware further up your chain - 
-presumably one that is hooked into your router somehow.
 
 ## Other goodies
 

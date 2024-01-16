@@ -33,14 +33,15 @@
   a 401 response is produced.
 
   If the JWT token does not exist, an empty :claims map is added to the incoming request."
-  [handler {:keys [find-token-fn issuers reject-missing-token?]
-            :or   {reject-missing-token? true}
+  [handler {:keys [find-token-fn issuers reject-missing-token? ignore-paths]
+            :or   {reject-missing-token? true
+                   ignore-paths          #{}}
             :as   opts}]
   (when-not (s/valid? ::opts opts)
     (throw (ex-info "Invalid options." (s/explain-data ::opts opts))))
 
-  (fn [req]
-    (if (true? (:ring-jwt/skip-auth? req))
+  (fn [{:keys [uri] :as req}]
+    (if (contains? ignore-paths uri)
       ; Just disregard any token or whether it's even included in the request
       (handler req)
 
