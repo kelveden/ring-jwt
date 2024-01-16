@@ -1,4 +1,4 @@
-(defproject net.clojars.kelveden/ring-jwt "2.4.0"
+(defproject net.clojars.kelveden/ring-jwt "2.5.0"
   :description "JWT middleware for Ring"
   :url "http://github.com/kelveden/ring-jwt"
   :license {:name "Eclipse Public License"

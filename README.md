@@ -74,6 +74,16 @@ Additionally, the following options are supported for all issuers:
 * `leeway-seconds`: The number of seconds leeway to give when verifying the expiry/active from claims
 of the token (i.e. the `exp` and `nbf` claims).
 
+### Skipping auth for certain requests
+There may be occasions where you wish to bypass the auth layer provided by the `ring-jwt` middleware. To this end, the middleware
+recognises the following property in an incoming `req` map:
+
+* `:ring-jwt/skip-auth?` - if set to `true`, the `ring-jwt` middleware will effectively be skipped for this request - i.e. 
+  the incoming request will just be passed on to the next ring handler in the chain.
+
+Actually adding the value to the `req` map is left up to you but one way would be via ring middleware further up your chain - 
+presumably one that is hooked into your router somehow.
+
 ## Other goodies
 
 Keys for use with [Integrant](https://github.com/weavejester/integrant) or [Duct](https://github.com/duct-framework/duct) are available in [kelveden/duct.middleware.ring-jwt](https://github.com/kelveden/duct.middleware.ring-jwt).

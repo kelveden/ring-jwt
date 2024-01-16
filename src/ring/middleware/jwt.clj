@@ -40,24 +40,29 @@
     (throw (ex-info "Invalid options." (s/explain-data ::opts opts))))
 
   (fn [req]
-    (try
-      (if-let [token ((or find-token-fn (read-token-from-header "Authorization")) req)]
-        (if-let [alg-opts (get issuers (or (token/decode-issuer token) :no-issuer))]
-          (->> (token/decode token alg-opts)
-               (assoc req :claims)
-               (handler))
-          {:status 401
-           :body   "Unknown issuer."})
+    (if (true? (:ring-jwt/skip-auth? req))
+      ; Just disregard any token or whether it's even included in the request
+      (handler req)
 
-        (if reject-missing-token?
-          {:status 401
-           :body   "No token found."}
-          (->> (assoc req :claims {})
-               (handler))))
+      ; Verify token and parse claims
+      (try
+        (if-let [token ((or find-token-fn (read-token-from-header "Authorization")) req)]
+          (if-let [alg-opts (get issuers (or (token/decode-issuer token) :no-issuer))]
+            (->> (token/decode token alg-opts)
+                 (assoc req :claims)
+                 (handler))
+            {:status 401
+             :body   "Unknown issuer."})
 
-      (catch JWTVerificationException e
-        {:status 401
-         :body   (ex-message e)}))))
+          (if reject-missing-token?
+            {:status 401
+             :body   "No token found."}
+            (->> (assoc req :claims {})
+                 (handler))))
+
+        (catch JWTVerificationException e
+          {:status 401
+           :body   (ex-message e)})))))
 
 (s/fdef wrap-jwt
         :ret fn?
