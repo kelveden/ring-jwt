@@ -6,8 +6,7 @@
             [ring.middleware.jwt :refer [wrap-jwt]])
   (:import (clojure.lang ExceptionInfo)
            (java.time Instant)
-           (java.util Date UUID)
-           (com.auth0.jwt.exceptions AlgorithmMismatchException)))
+           (java.util Date UUID)))
 
 (def ^:private dummy-handler (constantly identity))
 
@@ -350,3 +349,28 @@
         req     {:uri "/ping"}
         {:keys [status]} (handler req)]
     (is (= 200 status))))
+
+(deftest mismatching-audience-causes-401
+  (let [{:keys [private-key public-key]} (util/generate-key-pair :RS256)
+        issuer  (str (UUID/randomUUID))
+        claims  {:a 1 :b 2 :iss issuer :aud "myaudience"}
+        handler (wrap-jwt (dummy-handler) {:issuers {issuer {:alg        :RS256
+                                                             :audience   "anotheraudience"
+                                                             :public-key public-key}}})
+        req     (build-request claims {:alg         :RS256
+                                       :private-key private-key})
+        {:keys [status body]} (handler req)]
+    (is (= 401 status))
+    (is (= "The Claim 'aud' value doesn't contain the required audience." body))))
+
+(deftest matching-audiences-are-accepted
+  (let [{:keys [private-key public-key]} (util/generate-key-pair :RS256)
+        issuer  (str (UUID/randomUUID))
+        claims  {:a 1 :b 2 :iss issuer :aud "myaudience"}
+        handler (wrap-jwt (dummy-handler) {:issuers {issuer {:alg        :RS256
+                                                             :audience   "myaudience"
+                                                             :public-key public-key}}})
+        req     (build-request claims {:alg         :RS256
+                                       :private-key private-key})
+        res     (handler req)]
+    (is (= claims (:claims res)))))

@@ -18,6 +18,8 @@ Once wired into your ring server, the middleware will:
 * Will add the claims it finds in the token as a clojure map against the `:claims` key on the incoming request.
 * Add an empty `:claims` map to the request if no token is found.
 * Respond with a `401` if the JWS signature in the token cannot be verified.
+* Respond with a `401` if the option map for the matching issuer includes an `audience` setting AND there is a `aud` claim
+  included on the incoming token AND those two values do not match (case-sensitively).
 * Respond with a `401` if the token has expired (i.e. the [exp](https://tools.ietf.org/html/rfc7519#page-9) claim indicates a time
 in the past).
   - A leeway can be specified for this check with the `leeway-seconds` setting (see usage below).
@@ -35,6 +37,7 @@ a time in the future)
 (jwt/wrap-jwt handler {:issuers {"https://some/issuer"    {:alg    :HS256
                                                            :secret "asecret"}
                                  "https://another/issuer" {:alg          :RS256
+                                                           :audience     "myapi"
                                                            :jwk-endpoint "https://some/jwks/endpoint"}
                                  :no-issuer               {:alg    :HS256
                                                            :secret "anothersecret"}}})

@@ -34,18 +34,22 @@
       (keywordize-non-namespaced-claims)))
 
 (defn- decode-token*
-  [algorithm token {:keys [leeway-seconds]}]
-  (-> algorithm
-      (JWT/require)
-      (.acceptLeeway (or leeway-seconds 0))
-      (.build)
-      (.verify ^String token)
-      (.getPayload)
-      (base64->map)))
+  [algorithm token {:keys [leeway-seconds audience]}]
+  (let [verification (cond-> (-> algorithm
+                                 (JWT/require)
+                                 (.acceptLeeway (or leeway-seconds 0)))
+                             (some? audience)
+                             (.withAudience (into-array String [audience])))]
+    (-> verification
+        (.build)
+        (.verify ^String token)
+        (.getPayload)
+        (base64->map))))
 
 (defn decode-issuer
   [token]
-  (-> token JWT/decode (.getIssuer)))
+  (or (-> token JWT/decode (.getIssuer))
+      :no-issuer))
 
 (s/def ::alg #{:RS256 :HS256 :ES256})
 (s/def ::issuer (s/or :string (s/and string? (complement clojure.string/blank?))
