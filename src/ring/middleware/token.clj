@@ -62,9 +62,11 @@
 
 (s/def ::public-key #(instance? PublicKey %))
 (s/def ::jwk-endpoint (s/and string? #(re-matches #"(?i)^https?://.+$" %)))
+(s/def ::jwk-headers (s/map-of (s/or :string string? :keyword keyword?) string?))
 (s/def ::public-key-opts (s/and #(contains? #{:RS256 :ES256} (:alg %))
                                 (s/or :key (s/keys :req-un [::alg ::public-key])
-                                      :url (s/keys :req-un [::alg ::jwk-endpoint]))))
+                                      :url (s/keys :req-un [::alg ::jwk-endpoint]
+                                                   :opt-un [::jwk-headers]))))
 
 (defmulti decode
           "Decodes and verifies the signature of the given JWT token. The decoded claims from the token are returned."
