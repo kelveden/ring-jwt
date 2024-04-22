@@ -72,7 +72,8 @@ supported for the purposes of [JWS](https://tools.ietf.org/html/rfc7515):
 | HMAC using SHA-256             | `{:alg :HS256 :secret "your-secret"}`     |
 
 * [1] `public-key` is of type `java.security.PublicKey`.
-* [2] Note that the content from that JWK endpoint is cached internally for up to 10 minutes using the Auth0 [GuavaCachedJwkProvider](https://github.com/auth0/jwks-rsa-java/blob/master/src/main/java/com/auth0/jwk/GuavaCachedJwkProvider.java).
+* [2] Note that the content from that JWK endpoint is cached internally for up to 10 minutes using the Auth0 [GuavaCachedJwkProvider](https://github.com/auth0/jwks-rsa-java/blob/master/src/main/java/com/auth0/jwk/GuavaCachedJwkProvider.java)
+  Additional headers to be sent to the JWK endpoint in the request can be included with a `jwk-headers` map.
 
 Additionally, the following options are supported for all issuers:
 

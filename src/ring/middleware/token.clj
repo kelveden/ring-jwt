@@ -83,12 +83,12 @@
         (decode-token* token opts))))
 
 (defmethod decode :RS256
-  [token {:keys [public-key jwk-endpoint] :as opts}]
+  [token {:keys [public-key jwk-endpoint jwk-headers] :as opts}]
   {:pre [(s/valid? ::public-key-opts opts)]}
 
   (let [[public-key-type _] (s/conform ::public-key-opts opts)]
     (-> (case public-key-type
-          :url (Algorithm/RSA256 ^RSAKeyProvider (jwk/rsa-key-provider jwk-endpoint))
+          :url (Algorithm/RSA256 ^RSAKeyProvider (jwk/rsa-key-provider jwk-endpoint jwk-headers))
           :key (Algorithm/RSA256 ^RSAPublicKey public-key))
         (decode-token* token opts))))
 
