@@ -40,30 +40,33 @@
   (when-not (s/valid? ::opts opts)
     (throw (ex-info "Invalid options." (s/explain-data ::opts opts))))
 
-  (fn [{:keys [uri] :as req}]
-    (if (contains? ignore-paths uri)
-      ; Just disregard any token or whether it's even included in the request
-      (handler req)
+  (let [f (fn [{:keys [uri] :as req}]
+            (if (contains? ignore-paths uri)
+              ; Just disregard any token or whether it's even included in the request
+               (handler req)
 
-      ; Verify token and parse claims
-      (try
-        (if-let [token ((or find-token-fn (read-token-from-header "Authorization")) req)]
-          (if-let [alg-opts (get issuers (or (token/decode-issuer token) :no-issuer))]
-            (->> (token/decode token alg-opts)
-                 (assoc req :claims)
-                 (handler))
-            {:status 401
-             :body   "Unknown issuer."})
+               ; Verify token and parse claims
+               (try
+                 (if-let [token ((or find-token-fn (read-token-from-header "Authorization")) req)]
+                   (if-let [alg-opts (get issuers (or (token/decode-issuer token) :no-issuer))]
+                     (->> (token/decode token alg-opts)
+                          (assoc req :claims)
+                          (handler))
+                     {:status 401
+                      :body   "Unknown issuer."})
 
-          (if reject-missing-token?
-            {:status 401
-             :body   "No token found."}
-            (->> (assoc req :claims {})
-                 (handler))))
+                   (if reject-missing-token?
+                     {:status 401
+                      :body   "No token found."}
+                     (->> (assoc req :claims {})
+                          (handler))))
 
-        (catch JWTVerificationException e
-          {:status 401
-           :body   (ex-message e)})))))
+                 (catch JWTVerificationException e
+                   {:status 401
+                    :body   (ex-message e)}))))]
+    (fn
+      ([request]           (f request))
+      ([request respond _] (respond (f request))))))
 
 (s/fdef wrap-jwt
         :ret fn?
