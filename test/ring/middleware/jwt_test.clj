@@ -56,7 +56,12 @@
                                        :private-key private-key})
         {:keys [body status]} (handler req)]
     (is (= 401 status))
-    (is (= "The provided Algorithm doesn't match the one defined in the JWT's Header." body))))
+    (is (= "The provided Algorithm doesn't match the one defined in the JWT's Header." body))
+
+    (let [respond #(assoc %1 :responded? true)
+          {:keys [responded? status]} (handler req respond)]
+      (is (= 401 status))
+      (is (true? responded?)))))
 
 (deftest jwt-token-signed-with-wrong-issuer-causes-401
   (let [{:keys [private-key]} (util/generate-key-pair :RS256)
@@ -68,7 +73,12 @@
                                        :private-key private-key})
         {:keys [body status]} (handler req)]
     (is (= 401 status))
-    (is (= "Unknown issuer." body))))
+    (is (= "Unknown issuer." body))
+
+    (let [respond #(assoc %1 :responded? true)
+          {:keys [responded? status]} (handler req respond)]
+      (is (= 401 status))
+      (is (true? responded?)))))
 
 (deftest jwt-token-with-tampered-header-causes-401
   (let [{:keys [private-key public-key]} (util/generate-key-pair :RS256)
@@ -85,7 +95,12 @@
         req             {:headers {"Authorization" (str "Bearer " tampered-token)}}
         {:keys [body status]} (handler req)]
     (is (= 401 status))
-    (is (= "The Token's Signature resulted invalid when verified using the Algorithm: SHA256withRSA" body))))
+    (is (= "The Token's Signature resulted invalid when verified using the Algorithm: SHA256withRSA" body))
+
+    (let [respond #(assoc %1 :responded? true)
+          {:keys [responded? status]} (handler req respond)]
+      (is (= 401 status))
+      (is (true? responded?)))))
 
 (deftest jwt-token-with-tampered-payload-causes-401
   (let [{:keys [private-key public-key]} (util/generate-key-pair :RS256)
@@ -118,7 +133,12 @@
                                        :private-key private-key})
         {:keys [body status]} (handler req)]
     (is (= 401 status))
-    (is (clojure.string/starts-with? body "The Token has expired on"))))
+    (is (clojure.string/starts-with? body "The Token has expired on"))
+
+    (let [respond #(assoc %1 :responded? true)
+          {:keys [responded? status]} (handler req respond)]
+      (is (= 401 status))
+      (is (true? responded?)))))
 
 (deftest future-active-jwt-token-causes-401
   (let [{:keys [private-key public-key]} (util/generate-key-pair :RS256)
@@ -133,7 +153,12 @@
                                        :private-key private-key})
         {:keys [body status]} (handler req)]
     (is (= 401 status))
-    (is (clojure.string/starts-with? body "The Token can't be used before"))))
+    (is (clojure.string/starts-with? body "The Token can't be used before"))
+
+    (let [respond #(assoc %1 :responded? true)
+          {:keys [responded? status]} (handler req respond)]
+      (is (= 401 status))
+      (is (true? responded?)))))
 
 (defn- date->seconds [date]
   (/ (.getTime date) 1000))
@@ -260,7 +285,12 @@
         req     (build-request claims {:alg :HS256 :secret "whatever"})
         {:keys [status body]} (handler req)]
     (is (= 401 status))
-    (is (= "Unknown issuer." body))))
+    (is (= "Unknown issuer." body))
+
+    (let [respond #(assoc %1 :responded? true)
+          {:keys [responded? status]} (handler req respond)]
+      (is (= 401 status))
+      (is (true? responded?)))))
 
 (deftest issuer-is-case-sensitive
   (let [issuer  "someissuer"
@@ -280,7 +310,12 @@
                                              :public-key public-key}}})
         req     {}
         {:keys [status]} (handler req)]
-    (is (= 401 status))))
+    (is (= 401 status))
+
+    (let [respond #(assoc %1 :responded? true)
+          {:keys [responded? status]} (handler req respond)]
+      (is (= 401 status))
+      (is (true? responded?)))))
 
 (deftest missing-token-is-ignored-when-configured-not-to-reject-missing-tokens
   (let [{:keys [public-key]} (util/generate-key-pair :RS256)
@@ -361,7 +396,12 @@
                                        :private-key private-key})
         {:keys [status body]} (handler req)]
     (is (= 401 status))
-    (is (= "The Claim 'aud' value doesn't contain the required audience." body))))
+    (is (= "The Claim 'aud' value doesn't contain the required audience." body))
+
+    (let [respond #(assoc %1 :responded? true)
+          {:keys [responded? status]} (handler req respond)]
+      (is (= 401 status))
+      (is (true? responded?)))))
 
 (deftest matching-audiences-are-accepted
   (let [{:keys [private-key public-key]} (util/generate-key-pair :RS256)
@@ -374,3 +414,18 @@
                                        :private-key private-key})
         res     (handler req)]
     (is (= claims (:claims res)))))
+
+(deftest async-handler-arity-arguments-are-propagated-to-handler
+  (let [{:keys [private-key public-key]} (util/generate-key-pair :RS256)
+        issuer  (str (UUID/randomUUID))
+        claims  {:a 1 :b 2 :iss issuer}
+        handler (wrap-jwt (fn [_ respond raise]
+                            (and (some? respond) (some? raise)))
+                          {:issuers {issuer {:alg        :RS256
+                                             :public-key public-key}}})
+        req     (build-request claims {:alg         :RS256
+                                       :private-key private-key})
+        respond (fn [])
+        raise   (fn [])
+        res     (handler req respond raise)]
+    (is (true? res))))
