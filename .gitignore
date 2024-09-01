@@ -8,3 +8,5 @@ pom.xml
 *.iml
 .idea
 pom.xml.asc
+.clj-kondo
+.lsp
