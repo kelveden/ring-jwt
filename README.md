@@ -1,9 +1,6 @@
 # ring-jwt
 [![Clojars Project](https://clojars.org/net.clojars.kelveden/ring-jwt/latest-version.svg)](https://clojars.org/net.clojars.kelveden/ring-jwt)
 
-> [!important]
-> Github have attributed the wrong upstream repo for some reason. The upstream repo they have actually appears to be a very old fork from the _real_ upstream at https://github.com/ovotech/ring-jwt. I have a ticket open with Github to correct.
-
 [Ring](https://github.com/ring-clojure/ring) middleware for parsing, decoding and verifying
 a [JWS](https://tools.ietf.org/html/rfc7515)-signed [JWT](https://tools.ietf.org/html/rfc7519) token from the incoming request.
 (There is no explicit support for [JWE](https://tools.ietf.org/html/rfc7516) currently.)
