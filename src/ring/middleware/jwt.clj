@@ -3,7 +3,7 @@
             [ring.middleware.token :as token])
   (:import (com.auth0.jwt.exceptions SignatureVerificationException AlgorithmMismatchException JWTVerificationException TokenExpiredException)))
 
-(defn read-token-from-header
+(defn- read-token-from-header
   "Finds the token by searching the specified HTTP header (case-insensitive) for a bearer token."
   [header-name]
   (fn [{:keys [headers]}]
@@ -13,6 +13,22 @@
              (val)
              (re-find #"(?i)^Bearer (.+)$")
              (last))))
+
+(defn- handle-authn-error
+  [responder message {:keys [oauth-error-support]}]
+  (let [default-www-authenticate-values
+        "error=\"invalid_token\""
+
+        resp
+        (cond-> {:status 401
+                 :body   message}
+
+                (:enabled? oauth-error-support)
+                (assoc :headers {:WWW-Authenticate (str "Bearer " (if (:realm oauth-error-support)
+                                                                    (format "realm=\"%s\",%s" (:realm oauth-error-support)
+                                                                            default-www-authenticate-values)
+                                                                    default-www-authenticate-values))}))]
+    (responder resp)))
 
 (s/def ::alg-opts (s/and (s/keys :req-un [::token/alg]
                                  :opt-un [::token/leeway-seconds])
@@ -45,7 +61,7 @@
           invoke-handler (if async?
                            #(handler %1 respond raise)
                            #(handler %1))
-          handle-error   (if async? #(respond %1) identity)]
+          responder      (if async? #(respond %1) identity)]
       (if (contains? ignore-paths uri)
         ; Just disregard any token or whether it's even included in the request
         (invoke-handler req)
@@ -57,21 +73,15 @@
               (->> (token/decode token alg-opts)
                    (assoc req :claims)
                    (invoke-handler))
-              (handle-error
-                {:status 401
-                 :body   "Unknown issuer."}))
+              (handle-authn-error responder "Unknown issuer." opts))
 
             (if reject-missing-token?
-              (handle-error
-                {:status 401
-                 :body   "No token found."})
+              (handle-authn-error responder "No token found." opts)
               (->> (assoc req :claims {})
                    (invoke-handler))))
 
           (catch JWTVerificationException e
-            (handle-error
-              {:status 401
-               :body   (ex-message e)})))))))
+            (handle-authn-error responder (ex-message e) opts)))))))
 
 (s/fdef wrap-jwt
         :ret fn?

@@ -4,7 +4,7 @@
   <groupId>net.clojars.kelveden</groupId>
   <artifactId>ring-jwt</artifactId>
   <packaging>jar</packaging>
-  <version>2.9.0</version>
+  <version>2.10.0</version>
   <name>ring-jwt</name>
   <description>JWT middleware for Ring</description>
   <url>http://github.com/kelveden/ring-jwt</url>
@@ -18,7 +18,7 @@
     <url>https://github.com/kelveden/ring-jwt</url>
     <connection>scm:git:git://github.com/kelveden/ring-jwt.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/kelveden/ring-jwt.git</developerConnection>
-    <tag>ee91716a067e95c133d21a0e262b405407384abf</tag>
+    <tag>a98fcb9465e48ac4358432c1034c1bc19527c20f</tag>
   </scm>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -87,6 +87,24 @@
       <groupId>com.auth0</groupId>
       <artifactId>jwks-rsa</artifactId>
       <version>0.22.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.clojure</groupId>
+      <artifactId>test.check</artifactId>
+      <version>1.1.1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>kelveden</groupId>
+      <artifactId>clj-wiremock</artifactId>
+      <version>1.8.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>2.0.16</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 </project>

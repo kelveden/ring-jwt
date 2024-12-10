@@ -40,7 +40,9 @@ a time in the future)
                                                            :audience     "myapi"
                                                            :jwk-endpoint "https://some/jwks/endpoint"}
                                  :no-issuer               {:alg    :HS256
-                                                           :secret "anothersecret"}}})
+                                                           :secret "anothersecret"}}
+                       :oauth-error-support {:enabled? true
+                                             :realm    "myrealm"}})
 ```
 
 Options:
@@ -56,6 +58,10 @@ the token will be sought from the bearer token given in the `Authorization` head
 If set to `false` a missing token will cause _authentication to be skipped_ - and so it is then the responsibility of your service code to determine whether incoming requests missing a token should be rejected or not.
 * `:ignore-paths` (optional): set of paths for which the JWT middleware should be ignored. For requests including a `:uri` that matches one
   of the configured paths, the JWT middleware will be skipped.
+* `:oauth-error-support` (optional): Configuration for supporting OAuth 2.0 errors in the responses.
+  - `:enabled?`: Flag indicating whether to support the `WWW-Authenticate` response header as defined in
+    [OAuth 2.0 specification on bearer token usage](https://datatracker.ietf.org/doc/html/rfc6750#page-7).
+  - `:realm` (optional): OAuth realm to include in the `WWW-Authenticate` response header.
 
 ### Configuring the cryptographic algorithms
 Depending upon the cryptographic algorithm, a different map of options will be required. Note that, at the point your
