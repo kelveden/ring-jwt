@@ -2,7 +2,8 @@
   (:require [cheshire.core :as json]
             [clojure.walk :refer [postwalk]]
             [ring.middleware.jwk :as jwk]
-            [clojure.spec.alpha :as s])
+            [clojure.spec.alpha :as s]
+            [clojure.string])
   (:import (com.auth0.jwt.algorithms Algorithm)
            (com.auth0.jwt JWT)
            (com.auth0.jwt.exceptions JWTDecodeException)

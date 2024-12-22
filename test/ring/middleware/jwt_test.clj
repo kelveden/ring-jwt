@@ -1,11 +1,11 @@
 (ns ring.middleware.jwt-test
-  (:require [clojure.test :refer :all]
+  (:require [clojure.test :refer [deftest is testing]]
             [ring.middleware.jwt-test-utils :as util]
             [ring.middleware.jwt :refer [wrap-jwt]]
-            [ring.middleware.test-utils :refer [build-request now-to-seconds-accuracy instant->date]])
+            [ring.middleware.test-utils :refer [build-request now-to-seconds-accuracy instant->date]]
+            [clojure.string])
   (:import (clojure.lang ExceptionInfo)
-           (java.time Instant)
-           (java.util Date UUID)))
+           (java.util UUID)))
 
 (def ^:private dummy-handler (constantly identity))
 

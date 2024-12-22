@@ -1,12 +1,11 @@
 (ns ring.middleware.jwt-authz-error-test
   (:require [cheshire.core :as json]
             [clojure.string :refer [split join]]
-            [clojure.test :refer :all]
+            [clojure.test :refer [deftest is]]
             [ring.middleware.jwt-test-utils :as util]
             [ring.middleware.jwt :refer [wrap-jwt]]
             [ring.middleware.test-utils :refer [build-request now-to-seconds-accuracy instant->date]])
-  (:import (java.time Instant)
-           (java.util Date UUID)))
+  (:import (java.util UUID)))
 
 (def ^:private dummy-handler (constantly identity))
 
@@ -323,9 +322,9 @@
         req    (build-request {} {:alg         :RS256
                                   :private-key private-key})
         config {:issuers {issuer {:alg    :HS256
-                                  :secret (util/generate-hmac-secret)}}}]
-    (let [handler (wrap-jwt (dummy-handler)
-                            (assoc config :oauth-error-support {:enabled? true :realm "myrealm"}))
-          {:keys [status headers]} (handler req)]
-      (is (= 401 status))
-      (is (= "Bearer realm=\"myrealm\",error=\"invalid_token\"" (:WWW-Authenticate headers))))))
+                                  :secret (util/generate-hmac-secret)}}}
+        handler (wrap-jwt (dummy-handler)
+                          (assoc config :oauth-error-support {:enabled? true :realm "myrealm"}))
+        {:keys [status headers]} (handler req)]
+    (is (= 401 status))
+    (is (= "Bearer realm=\"myrealm\",error=\"invalid_token\"" (:WWW-Authenticate headers)))))

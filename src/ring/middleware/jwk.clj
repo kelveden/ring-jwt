@@ -1,4 +1,5 @@
 (ns ring.middleware.jwk
+  (:require [clojure.walk])
   (:import (java.net URL)
            (com.auth0.jwk GuavaCachedJwkProvider UrlJwkProvider)
            (com.auth0.jwt.interfaces RSAKeyProvider)))

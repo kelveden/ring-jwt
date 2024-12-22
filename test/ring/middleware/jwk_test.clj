@@ -1,6 +1,6 @@
 (ns ring.middleware.jwk-test
   (:require [clj-wiremock.core :as wmk]
-            [clojure.test :refer :all]
+            [clojure.test :refer [deftest is]]
             [ring.middleware.jwk :refer [rsa-key-provider]]
             [ring.middleware.jwt-test-utils :as util])
   (:import (java.util UUID)))

@@ -1,7 +1,7 @@
 (ns ring.middleware.jwt
   (:require [clojure.spec.alpha :as s]
             [ring.middleware.token :as token])
-  (:import (com.auth0.jwt.exceptions SignatureVerificationException AlgorithmMismatchException JWTVerificationException TokenExpiredException)))
+  (:import (com.auth0.jwt.exceptions JWTVerificationException)))
 
 (defn- read-token-from-header
   "Finds the token by searching the specified HTTP header (case-insensitive) for a bearer token."

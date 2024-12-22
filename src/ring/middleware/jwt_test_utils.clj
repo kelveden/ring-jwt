@@ -1,8 +1,7 @@
 (ns ring.middleware.jwt-test-utils
   "Test utility functions for use in writing tests against ring servers that have the
   ring-jwt middleware. Not designed for use in production code."
-  (:require [clojure.test :refer :all]
-            [clojure.walk :refer [stringify-keys walk]]
+  (:require [clojure.walk :refer [stringify-keys walk]]
             [cheshire.core :as json])
   (:import (com.auth0.jwt.algorithms Algorithm)
            (org.apache.commons.codec Charsets)

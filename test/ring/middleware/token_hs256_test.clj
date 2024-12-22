@@ -1,7 +1,7 @@
 (ns ring.middleware.token-hs256-test
   (:require [cheshire.core :as json]
             [clojure.string :refer [split join]]
-            [clojure.test :refer :all]
+            [clojure.test :refer [deftest is]]
             [ring.middleware.jwt-test-utils :as util]
             [ring.middleware.token :as token])
   (:import (com.auth0.jwt.exceptions SignatureVerificationException)))
