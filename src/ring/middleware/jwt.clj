@@ -3,7 +3,7 @@
             [ring.middleware.token :as token])
   (:import (com.auth0.jwt.exceptions JWTVerificationException)))
 
-(defn- read-token-from-header
+(defn read-token-from-header
   "Finds the token by searching the specified HTTP header (case-insensitive) for a bearer token."
   [header-name]
   (fn [{:keys [headers]}]
