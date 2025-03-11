@@ -98,5 +98,11 @@ Keys for use with [Integrant](https://github.com/weavejester/integrant) or [Duct
 * [JSON Web Keys - JWK Specification](https://tools.ietf.org/html/rfc7517)
 * [jwt.io](https://jwt.io/)
 
+## Developing locally
+
+* Run tests: `make test`
+* Format code: `make format`
+* Deploy to clojars: `make deploy`
+
 ## License
 Distributed under the Eclipse Public License, the same as Clojure.

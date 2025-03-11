@@ -23,11 +23,11 @@
         (cond-> {:status 401
                  :body   message}
 
-                (:enabled? oauth-error-support)
-                (assoc :headers {:WWW-Authenticate (str "Bearer " (if (:realm oauth-error-support)
-                                                                    (format "realm=\"%s\",%s" (:realm oauth-error-support)
-                                                                            default-www-authenticate-values)
-                                                                    default-www-authenticate-values))}))]
+          (:enabled? oauth-error-support)
+          (assoc :headers {:WWW-Authenticate (str "Bearer " (if (:realm oauth-error-support)
+                                                              (format "realm=\"%s\",%s" (:realm oauth-error-support)
+                                                                      default-www-authenticate-values)
+                                                              default-www-authenticate-values))}))]
     (responder resp)))
 
 (s/def ::alg-opts (s/and (s/keys :req-un [::token/alg]
@@ -84,6 +84,6 @@
             (handle-authn-error responder (ex-message e) opts)))))))
 
 (s/fdef wrap-jwt
-        :ret fn?
-        :args (s/cat :handler fn?
-                     :opts ::opts))
+  :ret fn?
+  :args (s/cat :handler fn?
+               :opts ::opts))

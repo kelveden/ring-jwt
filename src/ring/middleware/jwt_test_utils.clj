@@ -63,25 +63,25 @@
     (.sign payload algorithm)))
 
 (defmulti encode-token
-          "Encodes the given claims as a JWT using the given arguments as a basis."
-          (fn [_ {:keys [alg]}] alg))
+  "Encodes the given claims as a JWT using the given arguments as a basis."
+  (fn [_ {:keys [alg]}] alg))
 
 (defmethod encode-token :RS256
   [claims {:keys [private-key key-id public-key]}]
   (let [algorithm (Algorithm/RSA256
-                    (reify RSAKeyProvider
-                      (getPublicKeyById [_, _] public-key)
-                      (getPrivateKey [_] private-key)
-                      (getPrivateKeyId [_] key-id)))]
+                   (reify RSAKeyProvider
+                     (getPublicKeyById [_, _] public-key)
+                     (getPrivateKey [_] private-key)
+                     (getPrivateKeyId [_] key-id)))]
     (encode-token* algorithm claims)))
 
 (defmethod encode-token :ES256
   [claims {:keys [private-key key-id public-key]}]
   (let [algorithm (Algorithm/ECDSA256
-                    (reify ECDSAKeyProvider
-                      (getPublicKeyById [_, _] public-key)
-                      (getPrivateKey [_] private-key)
-                      (getPrivateKeyId [_] key-id)))]
+                   (reify ECDSAKeyProvider
+                     (getPublicKeyById [_, _] public-key)
+                     (getPrivateKey [_] private-key)
+                     (getPrivateKeyId [_] key-id)))]
     (encode-token* algorithm claims)))
 
 (defmethod encode-token :HS256
@@ -122,9 +122,9 @@
                                       (Base64/encodeBase64URLSafe)
                                       (String. StandardCharsets/UTF_8))]
     (json/generate-string
-      {:keys [{:kid key-id
-               :kty (.getAlgorithm public-key)
-               :alg "RS256"
-               :use "sig"
-               :e   (base64-encode-big-endian (.getPublicExponent public-key))
-               :n   (base64-encode-big-endian (.getModulus public-key))}]})))
+     {:keys [{:kid key-id
+              :kty (.getAlgorithm public-key)
+              :alg "RS256"
+              :use "sig"
+              :e   (base64-encode-big-endian (.getPublicExponent public-key))
+              :n   (base64-encode-big-endian (.getModulus public-key))}]})))

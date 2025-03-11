@@ -39,8 +39,8 @@
   (let [verification (cond-> (-> algorithm
                                  (JWT/require)
                                  (.acceptLeeway (or leeway-seconds 0)))
-                             (some? audience)
-                             (.withAudience (into-array String [audience])))]
+                       (some? audience)
+                       (.withAudience (into-array String [audience])))]
     (-> verification
         (.build)
         (.verify ^String token)
@@ -70,8 +70,8 @@
                                                    :opt-un [::jwk-headers]))))
 
 (defmulti decode
-          "Decodes and verifies the signature of the given JWT token. The decoded claims from the token are returned."
-          (fn [_ {:keys [alg]}] alg))
+  "Decodes and verifies the signature of the given JWT token. The decoded claims from the token are returned."
+  (fn [_ {:keys [alg]}] alg))
 (defmethod decode nil
   [& _]
   (throw (JWTDecodeException. "Could not parse algorithm.")))

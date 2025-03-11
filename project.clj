@@ -8,6 +8,7 @@
                  [org.clojure/clojure "1.12.0"]
                  [com.auth0/java-jwt "4.5.0"]
                  [com.auth0/jwks-rsa "0.22.1"]]
+  :plugins [[dev.weavejester/lein-cljfmt "0.13.0"]]
   :profiles {:dev      {:dependencies [[org.clojure/test.check "1.1.1"]
                                        [kelveden/clj-wiremock "1.9.0"]
                                        [org.slf4j/slf4j-simple "2.0.17"]]
