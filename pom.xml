@@ -4,7 +4,7 @@
   <groupId>net.clojars.kelveden</groupId>
   <artifactId>ring-jwt</artifactId>
   <packaging>jar</packaging>
-  <version>2.10.2</version>
+  <version>2.10.3</version>
   <name>ring-jwt</name>
   <description>JWT middleware for Ring</description>
   <url>http://github.com/kelveden/ring-jwt</url>
@@ -18,7 +18,7 @@
     <url>https://github.com/kelveden/ring-jwt</url>
     <connection>scm:git:git://github.com/kelveden/ring-jwt.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/kelveden/ring-jwt.git</developerConnection>
-    <tag>27a2777377c3f1422b9a1d10da4e5935d398a282</tag>
+    <tag>3dbcc62337c60e5f1fcc3cafa7a4c9ed50540a5e</tag>
   </scm>
   <build>
     <sourceDirectory>src</sourceDirectory>
